@@ -1,5 +1,7 @@
 Revision history for VendorAPI-2Checkout-Client
 
-0.01    Date/time
-        First version, released on an unsuspecting world.
+0.01    2011-06-26/02:01
+        First version, uploaded to CPAN.
+        - it can list_sales() and detail_sale(sale_id)
+     
 
