@@ -4,6 +4,9 @@ use 5.006;
 use strict;
 use warnings;
 
+use LWP::UserAgent;
+use Params::Validate qw(:all);
+
 =head1 NAME
 
 VendorAPI::2Checkout::Client - an OO interface to the 2Checkout.com Vendor API
@@ -16,23 +19,45 @@ Version 0.01
 
 our $VERSION = '0.01';
 
+use constant {
+     VAPI_BASE_URI => 'https://www.2checkout.com/api/sales',
+     VAPI_REALM    => '2CO API',
+     VAPI_NETLOC   => 'www.2checkout.com:443',
+};
 
 =head1 SYNOPSIS
-
-Quick summary of what the module does.
-
-Perhaps a little code snippet.
 
     use VendorAPI::2Checkout::Client;
 
     my $tco = VendorAPI::2Checkout::Client->new($username, $password);
-    $tco->list_sales([$format]);
+    $sales = $tco->list_sales();
+
+    $sale = $tco->detail_sale(sale_id => 1234554323);
 
     ...
 
-=head1 SUBROUTINES/METHODS
+=head1 DESCRIPTION
 
-=head2 new
+This module is an OO interface to the 2Checkout.com Vendor API.
+
+This modules uses Params::Validate which likes to die() when the parameters do not pass validation, so
+wrap your code in evals, etc.
+
+Presently only implements list_sales (no params), and detail_sale( sale_id => $sale_id ).
+
+Return data is in XML. Requesting JSON not implemented yet.
+
+Please refer to L<2Checkout's Back Office Admin API Documentation|http://www.2checkout.com/documentation/api> 
+for expexted return values.
+
+=head1 CONSTRUCTORS AND METHODS
+
+=over 4
+
+=item $c = VendorAPI::2Checkout::Client->new($username, $password)
+
+Contructs a new C<VendorAPI::2Checkout::Client> object to comminuncate with the 2Checkout Back Office Admin API.
+You must pass your Vendor API username and password or the constructor will return undef;
 
 =cut
 
@@ -45,22 +70,54 @@ sub new {
       return undef;
    }
 
-   return bless { uid => $username, pwd => $password }, $class;
+   my $ua = LWP::UserAgent->new( agent => "VendorAPI::2Checkout::Client/${VERSION} " );
+   $ua->credentials(VAPI_NETLOC, VAPI_REALM, $username, $password);
+   return bless { ua => $ua }, $class;
 }
 
-=head2 list_sales
+
+=item $sales = $c->list_sales();
+
+Retrieves the list of sales for the vendor
 
 =cut
 
+my $_profile = {
+   sale_id    => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1}, 
+};
+
 sub list_sales {
+   my $self = shift;
+   my $uri = VAPI_BASE_URI . '/list_sales';
+   $self->_ua->get($uri);
 }
 
-=head2 detail_sale
+=item  $sale = $c->detail_sale(sale_id => $sale_id);
+
+Retrieves the details for the named sale.  
 
 =cut
 
 sub detail_sale {
+   my $self = shift;
+   
+   my %params = validate(@_, $_profile);
+
+   my $uri = VAPI_BASE_URI . '/detail_sale';
+
+   $uri .= "?sale_id=$params{sale_id}";
+
+   $self->_ua->get($uri);
 }
+
+
+sub _ua { 
+   $_[0]->{ua}; 
+};
+
+
+
+=back
 
 =head1 AUTHOR
 

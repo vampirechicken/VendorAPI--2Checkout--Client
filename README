@@ -1,15 +1,25 @@
 VendorAPI-2Checkout-Client
 
-The README is used to introduce the module and provide instructions on
-how to install the module, any machine dependencies it may have (for
-example C compilers and installed libraries) and any other information
-that should be provided before the module is installed.
+This module is only useful to you if you have a vendor account at 2Checkout.com.
+In order to test your ability to interact withy the 2checkout Vendor API, you'll 
+need to pass your vendor API username and password to 'make test' via environment
+variables, so the test can use them when calling new().
 
-A README file is required for CPAN modules since CPAN extracts the README
-file from a module distribution so that people browsing the archive
-can use it to get an idea of the module's uses. It is usually a good idea
-to provide version information here so that people can decide whether
-fixes for the module are worth downloading.
+If the preceeding paragraph does not make any sense to you, then this module
+just might not be for you.
+
+The two environment variables are:
+  VAPI_2CO_UID=myapiuserid 
+  VAPI_2CO_PWD=myapiuserpassword 
+
+You may need to log into your 2checkout account and create a new user for API access. You can't
+use your regular Vendor Area login for API access, as API access and Vendor Area 
+are mutually exclusive.
+
+This module uses Params::Validate which likes to die if the parameters do not pass validation, 
+so wrap your calls in evals, etc.
+
+If you have sales, set VAPI_HAS_SALES=1, if you have non, unset it. 
 
 
 INSTALLATION
@@ -18,7 +28,7 @@ To install this module, run the following commands:
 
 	perl Makefile.PL
 	make
-	make test
+	env VAPI_HAS_SALES=1 VAPI_2CO_UID=myapiuser VAPI_2CO_PWD=mypasswd make test
 	make install
 
 SUPPORT AND DOCUMENTATION

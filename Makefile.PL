@@ -13,7 +13,12 @@ WriteMakefile(
       : ()),
     PL_FILES            => {},
     PREREQ_PM => {
-        'Test::More' => 0,
+        'LWP'         => 0,
+        'Params::Validate'  => 0,
+    },
+    BUILD_REQUIRES => {
+        'Test::More'  => 0.87,
+        'XML::Simple' => 0,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'VendorAPI-2Checkout-Client-*' },
