@@ -6,6 +6,7 @@ use warnings;
 
 use LWP::UserAgent;
 use Params::Validate qw(:all);
+use Carp qw(confess);
 
 =head1 NAME
 
@@ -13,11 +14,11 @@ VendorAPI::2Checkout::Client - an OO interface to the 2Checkout.com Vendor API
 
 =head1 VERSION
 
-Version 0.02
+Version 0.03
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use constant {
      VAPI_BASE_URI => 'https://www.2checkout.com/api/sales',
@@ -81,9 +82,12 @@ sub new {
 Retrieves the list of sales for the vendor
 
 =cut
+use Data::Dumper;
+my $id_profile = { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, };
 
 my $_profile = {
-   sale_id    => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1}, 
+   sale_id       => $id_profile,
+   invoice_id    => $id_profile,
 };
 
 sub list_sales {
@@ -103,9 +107,18 @@ sub detail_sale {
    
    my %params = validate(@_, $_profile);
 
+   unless ($params{sale_id} || $params{invoice_id}) {
+      confess("detail_sale requires sale_id or invoice_id and received neither");
+   } 
+
    my $uri = VAPI_BASE_URI . '/detail_sale';
 
-   $uri .= "?sale_id=$params{sale_id}";
+   if ($params{invoice_id} ) {
+      $uri .= "?invoice_id=$params{invoice_id}";
+   }
+   else { 
+      $uri .= "?sale_id=$params{sale_id}";
+   }
 
    $self->_ua->get($uri);
 }

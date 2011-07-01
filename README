@@ -22,8 +22,7 @@ are mutually exclusive.
 This module uses Params::Validate which likes to die if the parameters do not pass validation, 
 so wrap your calls in evals, etc.
 
-If you have sales, set VAPI_HAS_SALES=1, if you have none, unset it, or ddon't set it. 
-
+If you have sales, set VAPI_HAS_SALES=1 - if you have none, unset it, or don't set it. 
 
 
 INSTALLATION
