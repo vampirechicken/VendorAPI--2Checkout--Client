@@ -1,7 +1,7 @@
 VendorAPI-2Checkout-Client
 
 This module is only useful to you if you have a vendor account at 2Checkout.com.
-In order to test your ability to interact withy the 2checkout Vendor API, you'll 
+In order to test your ability to interact with the 2checkout Vendor API, you'll 
 need to pass your vendor API username and password to 'make test' via environment
 variables, so the test can use them when calling new().
 
@@ -12,6 +12,9 @@ The two environment variables are:
   VAPI_2CO_UID=myapiuserid 
   VAPI_2CO_PWD=myapiuserpassword 
 
+If you don't have a vendor account, or have not set up an API user yet, don't set the 
+variables, and we'll skip the tests.
+
 You may need to log into your 2checkout account and create a new user for API access. You can't
 use your regular Vendor Area login for API access, as API access and Vendor Area 
 are mutually exclusive.
@@ -19,7 +22,8 @@ are mutually exclusive.
 This module uses Params::Validate which likes to die if the parameters do not pass validation, 
 so wrap your calls in evals, etc.
 
-If you have sales, set VAPI_HAS_SALES=1, if you have non, unset it. 
+If you have sales, set VAPI_HAS_SALES=1, if you have none, unset it, or ddon't set it. 
+
 
 
 INSTALLATION

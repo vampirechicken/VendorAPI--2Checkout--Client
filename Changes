@@ -1,5 +1,9 @@
 Revision history for VendorAPI-2Checkout-Client
 
+0.02    2011-06-30/22:00
+        - Fixed typos in the README that I discovered at YAPC::NA 2011 (Dahut!)
+        - BAILing on the tests was a bad idea. Changed it to SKIP.
+
 0.01    2011-06-26/02:01
         First version, uploaded to CPAN.
         - it can list_sales() and detail_sale(sale_id)

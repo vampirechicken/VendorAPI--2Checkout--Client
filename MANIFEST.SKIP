@@ -3,3 +3,5 @@
 ^blib/
 ^Makefile$
 \.old$
+^MYMETA\.yml$
+^pm_to_blib$
