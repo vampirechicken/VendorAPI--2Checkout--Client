@@ -7,6 +7,8 @@ use warnings;
 use LWP::UserAgent;
 use Params::Validate qw(:all);
 use Carp qw(confess);
+use URI;
+use URI::QueryParam;
 
 =head1 NAME
 
@@ -18,7 +20,7 @@ Version 0.03
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 use constant {
      VAPI_BASE_URI => 'https://www.2checkout.com/api/sales',
@@ -92,7 +94,7 @@ my $_profile = {
 
 sub list_sales {
    my $self = shift;
-   my $uri = VAPI_BASE_URI . '/list_sales';
+   my $uri = URI->new(VAPI_BASE_URI . '/list_sales');
    $self->_ua->get($uri);
 }
 
@@ -111,13 +113,13 @@ sub detail_sale {
       confess("detail_sale requires sale_id or invoice_id and received neither");
    } 
 
-   my $uri = VAPI_BASE_URI . '/detail_sale';
+   my $uri = URI->new(VAPI_BASE_URI . '/detail_sale');
 
    if ($params{invoice_id} ) {
-      $uri .= "?invoice_id=$params{invoice_id}";
+      $uri->query_param(invoice_id => $params{invoice_id});
    }
    else { 
-      $uri .= "?sale_id=$params{sale_id}";
+      $uri->query_param(sale_id => $params{sale_id});
    }
 
    $self->_ua->get($uri);

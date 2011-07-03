@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 use Test::More ;
-use Test::Output;
 
 BEGIN {
     use_ok( 'VendorAPI::2Checkout::Client' ) || print "Bail out!\n";
