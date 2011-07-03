@@ -13,8 +13,10 @@ WriteMakefile(
       : ()),
     PL_FILES            => {},
     PREREQ_PM => {
-        'LWP'         => 0,
-        'Params::Validate'  => 0,
+        'LWP'              => 0,
+        'Params::Validate' => 0,
+        'URI'              => 0,
+        'URI::QueryParam'  => 0,
     },
     BUILD_REQUIRES => {
         'Test::More'  => 0.87,

@@ -51,7 +51,7 @@ Presently only implements list_sales (no params), and detail_sale( sale_id => $s
 Return data is in XML. Requesting JSON not implemented yet.
 
 Please refer to L<2Checkout's Back Office Admin API Documentation|http://www.2checkout.com/documentation/api> 
-for expexted return values.
+for input parameters and expexted return values.
 
 =head1 CONSTRUCTORS AND METHODS
 
@@ -84,17 +84,29 @@ sub new {
 Retrieves the list of sales for the vendor
 
 =cut
-use Data::Dumper;
-my $id_profile = { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, };
+my $v = { 
+             id => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
+             pagesize => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
+             cur_page => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
+        };
+
+
 
 my $_profile = {
-   sale_id       => $id_profile,
-   invoice_id    => $id_profile,
+   sale_id       => $v->{id},
+   invoice_id    => $v->{id},
+   cur_page    => $v->{cur_page},
+   pagesize    => $v->{pagesize},
 };
 
 sub list_sales {
    my $self = shift;
    my $uri = URI->new(VAPI_BASE_URI . '/list_sales');
+   my %p = validate(@_, $_profile);
+
+   foreach my $k ( keys %p ) {
+      $uri->query_param($k => $p{$k});
+   }
    $self->_ua->get($uri);
 }
 
@@ -103,11 +115,15 @@ sub list_sales {
 Retrieves the details for the named sale.  
 
 =cut
+my $_detail_profile = {
+   sale_id       => $v->{id},
+   invoice_id    => $v->{id},
+};
 
 sub detail_sale {
    my $self = shift;
    
-   my %params = validate(@_, $_profile);
+   my %params = validate(@_, $_detail_profile);
 
    unless ($params{sale_id} || $params{invoice_id}) {
       confess("detail_sale requires sale_id or invoice_id and received neither");

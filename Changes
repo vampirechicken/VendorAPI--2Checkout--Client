@@ -3,6 +3,7 @@ Revision history for VendorAPI-2Checkout-Client
 0.03    2011-07-03
         - removed Test::Output from instatiation test.
         - use URI and URI::QueryParam
+        - implemented pagesize and curpage params for list_sales()
 
 0.03    2011-07-01/09:00
         - README typos fixed
