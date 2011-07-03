@@ -10,6 +10,8 @@ use Carp qw(confess);
 use URI;
 use URI::QueryParam;
 
+use Data::Dumper;
+
 =head1 NAME
 
 VendorAPI::2Checkout::Client - an OO interface to the 2Checkout.com Vendor API
@@ -88,26 +90,36 @@ my $v = {
              id => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
              pagesize => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
              cur_page => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
+             accept   => { type => SCALAR, regex => qr/(?:json|xml)/i, untaint => 1, optional => 1 },
         };
 
 
-
-my $_profile = {
-   sale_id       => $v->{id},
-   invoice_id    => $v->{id},
-   cur_page    => $v->{cur_page},
-   pagesize    => $v->{pagesize},
-};
+my $_profile = { map { $_ => $v->{$_} } qw/sale_id invoice_id pagesize cur_page accept/ };
 
 sub list_sales {
    my $self = shift;
+
    my $uri = URI->new(VAPI_BASE_URI . '/list_sales');
    my %p = validate(@_, $_profile);
+
+
+   my $headers;
+   $headers->{'content-type'} = 'text/plain;charset=utf-8';
+   if ($p{accept} && lc($p{accept}) eq 'json') {
+      $headers->{'Accept:'} = 'application/json';
+      delete $p{accept};
+   }
 
    foreach my $k ( keys %p ) {
       $uri->query_param($k => $p{$k});
    }
-   $self->_ua->get($uri);
+
+   if (defined $headers ) {
+      $self->_ua->get($uri, %$headers);
+   }
+   else {
+      $self->_ua->get($uri);
+   }
 }
 
 =item  $sale = $c->detail_sale(sale_id => $sale_id);
@@ -115,30 +127,37 @@ sub list_sales {
 Retrieves the details for the named sale.  
 
 =cut
-my $_detail_profile = {
-   sale_id       => $v->{id},
-   invoice_id    => $v->{id},
-};
+my $_detail_profile = { map { $_ => $v->{$_} } qw/sale_id invoice_id accept/ };
 
 sub detail_sale {
    my $self = shift;
+   my $headers;
    
-   my %params = validate(@_, $_detail_profile);
+   my %p = validate(@_, $_detail_profile);
 
-   unless ($params{sale_id} || $params{invoice_id}) {
+   unless ($p{sale_id} || $p{invoice_id}) {
       confess("detail_sale requires sale_id or invoice_id and received neither");
    } 
 
    my $uri = URI->new(VAPI_BASE_URI . '/detail_sale');
 
-   if ($params{invoice_id} ) {
-      $uri->query_param(invoice_id => $params{invoice_id});
+   if ($p{invoice_id} ) {
+      $uri->query_param(invoice_id => $p{invoice_id});
    }
    else { 
-      $uri->query_param(sale_id => $params{sale_id});
+      $uri->query_param(sale_id => $p{sale_id});
    }
 
-   $self->_ua->get($uri);
+   if ($p{accept} && lc($p{accept}) eq 'json') {
+      $headers->{'Accept:'} = 'application/json';
+   }
+
+   if (defined $headers ) {
+      $self->_ua->get($uri, %$headers);
+   }
+   else {
+      $self->_ua->get($uri);
+   }
 }
 
 

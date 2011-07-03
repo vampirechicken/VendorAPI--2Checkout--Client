@@ -41,6 +41,9 @@ SKIP: {
 
        is($invoicexml->{sale}[0]->{invoices}[0]->{sale_id}[0], $sale_id, "sale id in voice sale as in sale_id query");
 
+       $details = $tco->detail_sale(sale_id => $sale_id, format => 'json');
+       ok($details->is_success(), 'got detail');
+       my $j = $details->content;
 
     }
     
