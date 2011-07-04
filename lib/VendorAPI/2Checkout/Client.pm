@@ -84,6 +84,10 @@ sub new {
 Retrieves the list of sales for the vendor
 
 =cut
+
+my $sort_col_re = qr/^(sale_id|date_placed|customer_name|recurring|recurring_declined|usd_total)$/;
+my $sort_dir_re = qr/^(ASC|DESC)$/;
+
 my $v = { 
              sale_id => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
              invoice_id => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
@@ -97,6 +101,8 @@ my $v = {
              ccard_last2 => { type => SCALAR, regex => qw/^\d\d$/ , untaint => 1, optional => 1, },
              date_sale_end  => { type => SCALAR, regex => qw/^\d{4}-\d\d-\d\d$/ , untaint => 1, optional => 1, },
              date_sale_begin  => { type => SCALAR, regex => qw/^\d{4}-\d\d-\d\d$/ , untaint => 1, optional => 1, },
+             sort_col => { type => SCALAR, regex => $sort_col_re  , untaint => 1, optional => 1, },
+             sort_dir => { type => SCALAR, regex => $sort_dir_re , untaint => 1, optional => 1, },
         };
 
 my $_profile = { map { $_ => $v->{$_} } keys %$v };
