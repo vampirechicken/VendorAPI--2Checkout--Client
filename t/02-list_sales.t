@@ -5,6 +5,7 @@ use warnings;
 
 use Test::More ;
 use XML::Simple qw(:strict);
+use List::MoreUtils qw(all pairwise);
 
 BEGIN {
     use_ok( 'VendorAPI::2Checkout::Client' ) || print "Bail out!\n";
@@ -21,6 +22,36 @@ sub test_parameter {
    my $list = XMLin($r->content(), ForceArray => 1, KeyAttr => {});
    my $num_sales = num_sales($list);
    ok( $num_sales > 0, "got $num_sales for $value");
+}
+
+sub test_sort {
+   my ($ua, $sort_col, $sort_dir) = @_;
+
+   my $r = $ua->list_sales(sort_col => $sort_col, sort_dir => $sort_dir);
+   ok($r->is_success(), 'http 200');
+   my $list = XMLin($r->content(), ForceArray => 1, KeyAttr => {});
+   my $num_sales = num_sales($list);
+   ok( $num_sales > 0, "got $num_sales sales");
+
+   my $sales = $list->{sale_summary};
+
+   my @raw_columns =  map { $_->{$sort_col}[0] } @$sales;
+   my @sort_columns = sort map { $_->{$sort_col}[0] } @$sales;
+   if ($sort_dir eq 'DESC') {
+       @sort_columns = reverse @sort_columns;
+   }
+
+   my @comparisons ;
+   if ( $sort_col ne 'recurring_declined') {
+      @comparisons = pairwise { no warnings 'once'; $a eq $b } @sort_columns, @raw_columns;
+   }
+   else {
+      @comparisons = pairwise { my %a = %{$a}; my %b = %{$b}; %a == %b } @sort_columns, @raw_columns;
+   }
+
+   my $sorted_correctly = all { $_ } @comparisons;
+   ok( $sorted_correctly, "$sort_col:$sort_dir sorts as expected");
+
 }
 
 
@@ -44,8 +75,14 @@ SKIP: {
     # now try out some input parameters
     SKIP: {
        skip "list_sales input param tests require a vendor account with at leat 2 sales", $num_all_sales unless $num_all_sales >= 2;
-        
-       my ($value, $rv);
+
+       my @sort_columns = qw/sale_id date_placed customer_name recurring recurring_declined usd_total/;
+       foreach my $col ( @sort_columns ) {
+          foreach my $dir ( qw/ ASC DESC / ) {
+             test_sort($tco, $col, $dir);
+          }
+       }
+
        my %param_test_data = (
            customer_name => 'carp',
            customer_email => 'carp',
@@ -56,39 +93,35 @@ SKIP: {
            date_sale_begin => '2010-12-15',
            date_sale_end => '2015-10-15',
        );
- 
 
+       # input parameters
        foreach my $param ( keys %param_test_data ) {
-          diag($param);
-          $rv = test_parameter($tco, $param => $param_test_data{$param});
+          my $rv = test_parameter($tco, $param => $param_test_data{$param});
        }
 
-
-       diag("Pagination");
+       # pagination
        for (my $pagesize = 1; $pagesize <= $num_all_sales; $pagesize++) {
           my $num_full_pages = int($num_all_sales / $pagesize);
           my $partial_page = ( $num_full_pages * $pagesize != $num_all_sales);
           my $expected_pages = $num_full_pages + $partial_page;
 
-          for (my $page_num = 1;$page_num <= $expected_pages; $page_num++) { 
+          for (my $page_num = 1;$page_num <= $expected_pages; $page_num++) {
              $r = $tco->list_sales(cur_page => $page_num, pagesize => $pagesize);
              ok($r->is_success(), 'http 200');
              my $list = XMLin($r->content(), ForceArray => 1, KeyAttr => {});
              my $num_sales = num_sales($list);
 
              if ( $page_num < $expected_pages || !$partial_page ) {
-                is($num_sales, $pagesize, "got page $page_num of $expected_pages - $pagesize sales"); 
+                is($num_sales, $pagesize, "got page $page_num of $expected_pages - $pagesize sales");
                 next;
              }
-             
-             my $partial_size = $num_all_sales - ( $num_full_pages * $pagesize ) ;   
-             is($num_sales, $partial_size, "got page $page_num of $expected_pages - $partial_size sales"); 
-          } 
-      
+
+             my $partial_size = $num_all_sales - ( $num_full_pages * $pagesize ) ;
+             is($num_sales, $partial_size, "got page $page_num of $expected_pages - $partial_size sales");
+          }
+
        }
     }  # SKIP
-
-
 
 }  # SKIP
 
