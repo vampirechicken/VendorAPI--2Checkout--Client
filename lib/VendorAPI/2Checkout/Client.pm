@@ -100,18 +100,16 @@ sub list_sales {
    my $self = shift;
 
    my $uri = URI->new(VAPI_BASE_URI . '/list_sales');
-   my %p = validate(@_, $_profile);
-
+   my %input_params = validate(@_, $_profile);
 
    my $headers;
-   $headers->{'content-type'} = 'text/plain;charset=utf-8';
-   if ($p{accept} && lc($p{accept}) eq 'json') {
-      $headers->{'Accept:'} = 'application/json';
-      delete $p{accept};
+   if ($input_params{accept} && lc($input_params{accept}) eq 'json') {
+      $headers->{'Accept'} = 'application/json';
+      delete $input_params{accept};
    }
 
-   foreach my $k ( keys %p ) {
-      $uri->query_param($k => $p{$k});
+   foreach my $param_name ( keys %input_params ) {
+      $uri->query_param($param_name => $input_params{$param_name});
    }
 
    if (defined $headers ) {
