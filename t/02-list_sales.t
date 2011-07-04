@@ -66,12 +66,12 @@ skip 'testing other stuff', 12 if 1;
     ok($r->is_success(), 'http 200');
     my $j = JSON::Any->new;
 
-$DB::single = 1;
+#$DB::single = 1;
 
     my $json = $j->decode($r->content);
 
-    use Data::Dumper;
-    diag(Dumper($json));
+#    use Data::Dumper;
+#    diag(Dumper($json));
 
     if (defined $ENV{VAPI_HAS_SALES} && $ENV{VAPI_HAS_SALES} > 0 ) {
        ok($json->{page_info}{total_entries} > 0 , "got sales");
