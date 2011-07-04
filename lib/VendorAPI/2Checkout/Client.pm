@@ -16,11 +16,11 @@ VendorAPI::2Checkout::Client - an OO interface to the 2Checkout.com Vendor API
 
 =head1 VERSION
 
-Version 0.03
+Version 0.05
 
 =cut
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 use constant {
      VAPI_BASE_URI => 'https://www.2checkout.com/api/sales',
@@ -85,19 +85,21 @@ Retrieves the list of sales for the vendor
 
 =cut
 my $v = { 
-             id => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
+             sale_id => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
+             invoice_id => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
              pagesize => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
              cur_page => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
+             customer_name => { type => SCALAR, regex => qw/^[-A-Za-z.]+$/ , untaint => 1, optional => 1, },
+             customer_email => { type => SCALAR, regex => qw/^[-\w.+@]+$/ , untaint => 1, optional => 1, },
+             customer_phone => { type => SCALAR, regex => qw/^[\d()-]+$/ , untaint => 1, optional => 1, },
+             vendor_product_id => { type => SCALAR, regex => qw/^.+$/ , untaint => 1, optional => 1, },
+             ccard_first6 => { type => SCALAR, regex => qw/^\d{6}$/ , untaint => 1, optional => 1, },
+             ccard_last2 => { type => SCALAR, regex => qw/^\d\d$/ , untaint => 1, optional => 1, },
+             date_sale_end  => { type => SCALAR, regex => qw/^\d{4}-\d\d-\d\d$/ , untaint => 1, optional => 1, },
+             date_sale_begin  => { type => SCALAR, regex => qw/^\d{4}-\d\d-\d\d$/ , untaint => 1, optional => 1, },
         };
 
-
-
-my $_profile = {
-   sale_id       => $v->{id},
-   invoice_id    => $v->{id},
-   cur_page    => $v->{cur_page},
-   pagesize    => $v->{pagesize},
-};
+my $_profile = { map { $_ => $v->{$_} } keys %$v };
 
 sub list_sales {
    my $self = shift;
@@ -116,8 +118,8 @@ Retrieves the details for the named sale.
 
 =cut
 my $_detail_profile = {
-   sale_id       => $v->{id},
-   invoice_id    => $v->{id},
+   sale_id       => $v->{sale_id},
+   invoice_id    => $v->{invoice_id},
 };
 
 sub detail_sale {

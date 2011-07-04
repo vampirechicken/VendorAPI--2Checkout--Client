@@ -1,6 +1,10 @@
 Revision history for VendorAPI-2Checkout-Client
 
-0.03    2011-07-03
+0.05    2011-07-04
+        - implemented more input params for list_sales()
+        - some house keeping oin t/02-list_sales.t
+
+0.04    2011-07-03
         - removed Test::Output from instatiation test.
         - use URI and URI::QueryParam
         - implemented pagesize and curpage params for list_sales()
