@@ -11,3 +11,5 @@ cover_db
 pod2htm*.tmp
 VendorAPI-2Checkout-Client-*
 MANIFEST.bak
+*META.yml
+*META.json
