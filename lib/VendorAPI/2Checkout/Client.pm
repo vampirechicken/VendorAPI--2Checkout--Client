@@ -16,11 +16,11 @@ VendorAPI::2Checkout::Client - an OO interface to the 2Checkout.com Vendor API
 
 =head1 VERSION
 
-Version 0.06
+Version 0.07
 
 =cut
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 use constant {
      VAPI_BASE_URI => 'https://www.2checkout.com/api/sales',
@@ -88,7 +88,7 @@ Retrieves the list of sales for the vendor
 my $sort_col_re = qr/^(sale_id|date_placed|customer_name|recurring|recurring_declined|usd_total)$/;
 my $sort_dir_re = qr/^(ASC|DESC)$/;
 
-my $v = { 
+my %v = ( 
              sale_id => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
              invoice_id => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
              pagesize => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
@@ -103,9 +103,12 @@ my $v = {
              date_sale_begin  => { type => SCALAR, regex => qw/^\d{4}-\d\d-\d\d$/ , untaint => 1, optional => 1, },
              sort_col => { type => SCALAR, regex => $sort_col_re  , untaint => 1, optional => 1, },
              sort_dir => { type => SCALAR, regex => $sort_dir_re , untaint => 1, optional => 1, },
-        };
+             active_recurrings => { type => SCALAR, regex => qr/^[01]$/, untaint => 1, optional => 1, },
+             declined_recurrings => { type => SCALAR, regex => qr/^[01]$/, untaint => 1, optional => 1, },
+             refunded => { type => SCALAR, regex => qr/^[01]$/, untaint => 1, optional => 1, },
+        );
 
-my $_profile = { map { $_ => $v->{$_} } keys %$v };
+my $_profile = { map { $_ => $v{$_} } keys %v };
 
 sub list_sales {
    my $self = shift;
@@ -124,8 +127,8 @@ Retrieves the details for the named sale.
 
 =cut
 my $_detail_profile = {
-   sale_id       => $v->{sale_id},
-   invoice_id    => $v->{invoice_id},
+   sale_id       => $v{sale_id},
+   invoice_id    => $v{invoice_id},
 };
 
 sub detail_sale {

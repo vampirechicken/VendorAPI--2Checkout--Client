@@ -21,7 +21,7 @@ sub test_parameter {
    ok($r->is_success(), 'http 200');
    my $list = XMLin($r->content(), ForceArray => 1, KeyAttr => {});
    my $num_sales = num_sales($list);
-   ok( $num_sales > 0, "got $num_sales for $value");
+   ok( $num_sales > 0, "$param: got $num_sales for $value");
 }
 
 sub test_sort {
@@ -31,7 +31,7 @@ sub test_sort {
    ok($r->is_success(), 'http 200');
    my $list = XMLin($r->content(), ForceArray => 1, KeyAttr => {});
    my $num_sales = num_sales($list);
-   ok( $num_sales > 0, "got $num_sales sales");
+   ok( $num_sales > 0, "$sort_col: got $num_sales sales");
 
    my $sales = $list->{sale_summary};
 
@@ -98,6 +98,20 @@ SKIP: {
        foreach my $param ( keys %param_test_data ) {
           my $rv = test_parameter($tco, $param => $param_test_data{$param});
        }
+
+       my @test_data = (
+       #    [ 'refunded' , 1],
+           [ 'refunded' , 0],
+       #    [ 'active_recurrings' , 1],
+           [ 'active_recurrings' , 0],
+           [ 'declined_recurrings' , 0],
+       );
+
+       foreach my $test ( @test_data ) {
+          my ($param, $value) = @$test;
+          my $rv = test_parameter($tco, $param => $value);
+       }
+
 
        # pagination
        for (my $pagesize = 1; $pagesize <= $num_all_sales; $pagesize++) {
