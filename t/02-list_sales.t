@@ -9,8 +9,9 @@ use JSON::Any;
 
 BEGIN {
     use_ok( 'VendorAPI::2Checkout::Client' ) || print "Bail out!\n";
-
 }
+
+
 
 SKIP: {
     skip "VAPI_2CO_UID && VAPI_2CO_PWD not set in environment" , 5 unless $ENV{VAPI_2CO_UID} && $ENV{VAPI_2CO_PWD};
@@ -32,8 +33,7 @@ SKIP: {
 
     # now try out some input parameters
     SKIP: {
-#       skip "list_sales input param tests require a vendor account with at leat 2 sales", $num_all_sales unless $num_all_sales >= 2;
-skip 'testing other stuff', 12 if 1;
+       skip "list_sales input param tests require a vendor account with at leat 2 sales", 10 unless $num_all_sales >= 2;
         
        diag("Pagination");
        for (my $pagesize = 1; $pagesize <= $num_all_sales; $pagesize++) {
@@ -66,12 +66,7 @@ skip 'testing other stuff', 12 if 1;
     ok($r->is_success(), 'http 200');
     my $j = JSON::Any->new;
 
-#$DB::single = 1;
-
     my $json = $j->decode($r->content);
-
-#    use Data::Dumper;
-#    diag(Dumper($json));
 
     if (defined $ENV{VAPI_HAS_SALES} && $ENV{VAPI_HAS_SALES} > 0 ) {
        ok($json->{page_info}{total_entries} > 0 , "got sales");
