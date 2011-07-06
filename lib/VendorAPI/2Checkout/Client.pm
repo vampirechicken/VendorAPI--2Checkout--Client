@@ -142,7 +142,7 @@ Retrieves the details for the named sale.
 
 =cut
 
-my $_detail_profile = { map { $_ => $v->{$_} } qw/sale_id invoice_id accept/ };
+my $_detail_profile = { map { $_ => $v{$_} } qw/sale_id invoice_id accept/ };
 
 sub detail_sale {
    my $self = shift;

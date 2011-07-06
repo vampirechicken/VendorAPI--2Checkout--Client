@@ -83,7 +83,7 @@ SKIP: {
     my $r = $tco->list_sales();
     ok($r->is_success(), 'http 200');
     my $list = to_hash($r->content());
-    my $num_all_sales = num_all_sales($list)
+    my $num_all_sales = num_all_sales($list);
 
     if (defined $ENV{VAPI_HAS_SALES} && $ENV{VAPI_HAS_SALES} > 0 ) {
        ok($num_all_sales > 0 , "got $num_all_sales sales");
