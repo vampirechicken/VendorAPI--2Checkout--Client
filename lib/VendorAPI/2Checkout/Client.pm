@@ -22,7 +22,7 @@ Version 0.07
 
 =cut
 
-our $VERSION = '0.07';
+our $VERSION = '0.08_02';
 
 use constant {
      VAPI_BASE_URI => 'https://www.2checkout.com/api/sales',

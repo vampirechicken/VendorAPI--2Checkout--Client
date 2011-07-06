@@ -3,57 +3,39 @@
 use strict;
 use warnings;
 
+use lib 't';
+
 use Test::More ;
-use XML::Simple qw(:strict);
 use List::MoreUtils qw(all pairwise);
+use FormatTests::Factory;
 
 BEGIN {
     use_ok( 'VendorAPI::2Checkout::Client' ) || print "Bail out!\n";
 }
 
-sub num_sales {
-   scalar @{ $_[0]->{sale_summary} };
-}
-
-sub num_all_sales {
-    $_[0]->{page_info}[0]{total_entries}[0];
-}
-
-sub get_col {
-    my $sale = shift;
-    my $col = shift;
-    return $sale->{$col}[0];
-}
-
-sub to_hash {
-   my $content = shift;
-   my $hash = XMLin($content, ForceArray => 1, KeyAttr => {});
-   return $hash;
-}
-
 
 sub test_parameter {
-   my ($ua, $param, $value) = @_;
+   my ($ua, $param, $value, $tests) = @_;
    my $r = $ua->list_sales($param => $value);
    ok($r->is_success(), 'http 200');
-   my $list = to_hash($r->content());
-   my $num_sales = num_sales($list);
+   my $list = $tests->to_hash($r->content());
+   my $num_sales = $tests->num_sales($list);
    ok( $num_sales > 0, "$param: got $num_sales for $value");
 }
 
 sub test_sort {
-   my ($ua, $sort_col, $sort_dir) = @_;
+   my ($ua, $sort_col, $sort_dir, $tests) = @_;
 
    my $r = $ua->list_sales(sort_col => $sort_col, sort_dir => $sort_dir);
    ok($r->is_success(), 'http 200');
-   my $list = to_hash($r->content());
-   my $num_sales = num_sales($list);
+   my $list = $tests->to_hash($r->content());
+   my $num_sales = $tests->num_sales($list);
    ok( $num_sales > 0, "$sort_col: got $num_sales sales");
 
    my $sales = $list->{sale_summary};
 
-   my @raw_columns =  map { get_col($_,$sort_col) } @$sales;
-   my @sort_columns = sort map { get_col($_,$sort_col) } @$sales;
+   my @raw_columns =  map { $tests->get_col($_,$sort_col) } @$sales;
+   my @sort_columns = sort map { $tests->get_col($_,$sort_col) } @$sales;
    if ($sort_dir eq 'DESC') {
        @sort_columns = reverse @sort_columns;
    }
@@ -68,35 +50,36 @@ sub test_sort {
 
    my $sorted_correctly = all { $_ } @comparisons;
    ok( $sorted_correctly, "$sort_col:$sort_dir sorts as expected");
-
 }
 
 
-SKIP: {
-    skip "VAPI_2CO_UID && VAPI_2CO_PWD not set in environment" , 5 unless $ENV{VAPI_2CO_UID} && $ENV{VAPI_2CO_PWD};
-
-    my $tco = VendorAPI::2Checkout::Client->new( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD} );
-
-    ok(defined $tco, "new: got object");
-    isa_ok($tco,'VendorAPI::2Checkout::Client');
+sub test_list_sales {
+   my $tco = shift;
+   my $format_tests = shift;
 
     my $r = $tco->list_sales();
     ok($r->is_success(), 'http 200');
-    my $list = to_hash($r->content());
-    my $num_all_sales = num_all_sales($list);
+    my $list = $format_tests->to_hash($r->content());
+    my $num_all_sales = $format_tests->num_all_sales($list);
 
     if (defined $ENV{VAPI_HAS_SALES} && $ENV{VAPI_HAS_SALES} > 0 ) {
        ok($num_all_sales > 0 , "got $num_all_sales sales");
     }
 
-    # now try out some input parameters
-    SKIP: {
-       skip "list_sales input param tests require a vendor account with at leat 2 sales", $num_all_sales unless $num_all_sales >= 2;
+    return $r;
+}
+
+
+sub test_input_parameters {
+   my $tco = shift;
+   my $num_all_sales = shift;   
+   my $format_tests = shift;
+
 
        my @sort_columns = qw/sale_id date_placed customer_name recurring recurring_declined usd_total/;
        foreach my $col ( @sort_columns ) {
           foreach my $dir ( qw/ ASC DESC / ) {
-             test_sort($tco, $col, $dir);
+             test_sort($tco, $col, $dir, $format_tests);
           }
        }
 
@@ -113,7 +96,7 @@ SKIP: {
 
        # input parameters
        foreach my $param ( keys %param_test_data ) {
-          my $rv = test_parameter($tco, $param => $param_test_data{$param});
+          my $rv = test_parameter($tco, $param => $param_test_data{$param}, $format_tests);
        }
 
        my @test_data = (
@@ -124,7 +107,7 @@ SKIP: {
 
        foreach my $test ( @test_data ) {
           my ($param, $value) = @$test;
-          my $rv = test_parameter($tco, $param => $value);
+          my $rv = test_parameter($tco, $param => $value, $format_tests);
        }
 
 
@@ -135,10 +118,10 @@ SKIP: {
           my $expected_pages = $num_full_pages + $partial_page;
 
           for (my $page_num = 1;$page_num <= $expected_pages; $page_num++) {
-             $r = $tco->list_sales(cur_page => $page_num, pagesize => $pagesize);
+             my $r = $tco->list_sales(cur_page => $page_num, pagesize => $pagesize);
              ok($r->is_success(), 'http 200');
-             my $list = to_hash($r->content);
-             my $num_sales = num_sales($list);
+             my $list = $format_tests->to_hash($r->content);
+             my $num_sales = $format_tests->num_sales($list);
 
              if ( $page_num < $expected_pages || !$partial_page ) {
                 is($num_sales, $pagesize, "got page $page_num of $expected_pages - $pagesize sales per page"); 
@@ -150,8 +133,32 @@ SKIP: {
           } 
       
        }
-    }  # SKIP
 
+
+}
+
+
+SKIP: {
+
+    foreach my $format ( undef ) {
+
+        skip "VAPI_2CO_UID && VAPI_2CO_PWD not set in environment" , 5 unless $ENV{VAPI_2CO_UID} && $ENV{VAPI_2CO_PWD};
+    
+        my $format_tests = FormatTests::Factory->get_format_tests($format);
+    
+        my $tco = VendorAPI::2Checkout::Client->new( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD} );
+    
+        ok(defined $tco, "new: got object");
+        isa_ok($tco,'VendorAPI::2Checkout::Client');
+    
+        my $num_all_sales = test_list_sales($tco, $format_tests);
+    
+        # now try out some input parameters
+        SKIP: {
+           skip "list_sales input param tests require a vendor account with at leat 2 sales", $num_all_sales unless $num_all_sales >= 2;
+           test_input_parameters($tco, $num_all_sales, $format_tests); 
+        }  # SKIP
+    }
 }  # SKIP
 
 done_testing();

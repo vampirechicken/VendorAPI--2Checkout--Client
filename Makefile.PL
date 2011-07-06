@@ -21,6 +21,7 @@ WriteMakefile(
     BUILD_REQUIRES => {
         'Test::More'      => 0.87,
         'XML::Simple'     => 0,
+        'JSON::Any'       => 0,
         'List::MoreUtils' => 0,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
