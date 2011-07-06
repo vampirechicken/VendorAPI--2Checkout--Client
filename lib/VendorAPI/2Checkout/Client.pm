@@ -10,6 +10,8 @@ use Carp qw(confess);
 use URI;
 use URI::QueryParam;
 
+use Data::Dumper;
+
 =head1 NAME
 
 VendorAPI::2Checkout::Client - an OO interface to the 2Checkout.com Vendor API
@@ -112,13 +114,26 @@ my $_profile = { map { $_ => $v{$_} } keys %v };
 
 sub list_sales {
    my $self = shift;
-   my $uri = URI->new(VAPI_BASE_URI . '/list_sales');
-   my %p = validate(@_, $_profile);
 
-   foreach my $k ( keys %p ) {
-      $uri->query_param($k => $p{$k});
+   my $uri = URI->new(VAPI_BASE_URI . '/list_sales');
+   my %input_params = validate(@_, $_profile);
+
+   my $headers;
+   if ($input_params{accept} && lc($input_params{accept}) eq 'json') {
+      $headers->{'Accept'} = 'application/json';
+      delete $input_params{accept};
    }
-   $self->_ua->get($uri);
+
+   foreach my $param_name ( keys %input_params ) {
+      $uri->query_param($param_name => $input_params{$param_name});
+   }
+
+   if (defined $headers ) {
+      $self->_ua->get($uri, %$headers);
+   }
+   else {
+      $self->_ua->get($uri);
+   }
 }
 
 =item  $sale = $c->detail_sale(sale_id => $sale_id);
@@ -126,30 +141,38 @@ sub list_sales {
 Retrieves the details for the named sale.  
 
 =cut
-my $_detail_profile = {
-   sale_id       => $v{sale_id},
-   invoice_id    => $v{invoice_id},
-};
+
+my $_detail_profile = { map { $_ => $v->{$_} } qw/sale_id invoice_id accept/ };
 
 sub detail_sale {
    my $self = shift;
+   my %headers;
    
-   my %params = validate(@_, $_detail_profile);
+   my %p = validate(@_, $_detail_profile);
 
-   unless ($params{sale_id} || $params{invoice_id}) {
+   unless ($p{sale_id} || $p{invoice_id}) {
       confess("detail_sale requires sale_id or invoice_id and received neither");
    } 
 
    my $uri = URI->new(VAPI_BASE_URI . '/detail_sale');
 
-   if ($params{invoice_id} ) {
-      $uri->query_param(invoice_id => $params{invoice_id});
+   if ($p{invoice_id} ) {
+      $uri->query_param(invoice_id => $p{invoice_id});
    }
    else { 
-      $uri->query_param(sale_id => $params{sale_id});
+      $uri->query_param(sale_id => $p{sale_id});
    }
 
-   $self->_ua->get($uri);
+   if ($p{accept} && lc($p{accept}) eq 'json') {
+      $headers{'Accept'} = 'application/json';
+   }
+
+   if (keys %headers ) {
+      $self->_ua->get($uri, %headers);
+   }
+   else {
+      $self->_ua->get($uri);
+   }
 }
 
 

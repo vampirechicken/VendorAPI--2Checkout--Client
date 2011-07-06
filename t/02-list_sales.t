@@ -12,14 +12,31 @@ BEGIN {
 }
 
 sub num_sales {
-   @{ $_[0]->{sale_summary} };
+   scalar @{ $_[0]->{sale_summary} };
 }
+
+sub num_all_sales {
+    $_[0]->{page_info}[0]{total_entries}[0];
+}
+
+sub get_col {
+    my $sale = shift;
+    my $col = shift;
+    return $sale->{$col}[0];
+}
+
+sub to_hash {
+   my $content = shift;
+   my $hash = XMLin($content, ForceArray => 1, KeyAttr => {});
+   return $hash;
+}
+
 
 sub test_parameter {
    my ($ua, $param, $value) = @_;
    my $r = $ua->list_sales($param => $value);
    ok($r->is_success(), 'http 200');
-   my $list = XMLin($r->content(), ForceArray => 1, KeyAttr => {});
+   my $list = to_hash($r->content());
    my $num_sales = num_sales($list);
    ok( $num_sales > 0, "$param: got $num_sales for $value");
 }
@@ -29,14 +46,14 @@ sub test_sort {
 
    my $r = $ua->list_sales(sort_col => $sort_col, sort_dir => $sort_dir);
    ok($r->is_success(), 'http 200');
-   my $list = XMLin($r->content(), ForceArray => 1, KeyAttr => {});
+   my $list = to_hash($r->content());
    my $num_sales = num_sales($list);
    ok( $num_sales > 0, "$sort_col: got $num_sales sales");
 
    my $sales = $list->{sale_summary};
 
-   my @raw_columns =  map { $_->{$sort_col}[0] } @$sales;
-   my @sort_columns = sort map { $_->{$sort_col}[0] } @$sales;
+   my @raw_columns =  map { get_col($_,$sort_col) } @$sales;
+   my @sort_columns = sort map { get_col($_,$sort_col) } @$sales;
    if ($sort_dir eq 'DESC') {
        @sort_columns = reverse @sort_columns;
    }
@@ -56,7 +73,7 @@ sub test_sort {
 
 
 SKIP: {
-    skip "VAPI_2CO_UID && VAPI_2CO_PWD not set in environment" , 4 unless $ENV{VAPI_2CO_UID} && $ENV{VAPI_2CO_PWD};
+    skip "VAPI_2CO_UID && VAPI_2CO_PWD not set in environment" , 5 unless $ENV{VAPI_2CO_UID} && $ENV{VAPI_2CO_PWD};
 
     my $tco = VendorAPI::2Checkout::Client->new( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD} );
 
@@ -65,8 +82,8 @@ SKIP: {
 
     my $r = $tco->list_sales();
     ok($r->is_success(), 'http 200');
-    my $list = XMLin($r->content(), ForceArray => 1, KeyAttr => {});
-    my $num_all_sales = $list->{page_info}[0]{total_entries}[0];
+    my $list = to_hash($r->content());
+    my $num_all_sales = num_all_sales($list)
 
     if (defined $ENV{VAPI_HAS_SALES} && $ENV{VAPI_HAS_SALES} > 0 ) {
        ok($num_all_sales > 0 , "got $num_all_sales sales");
@@ -100,9 +117,7 @@ SKIP: {
        }
 
        my @test_data = (
-       #    [ 'refunded' , 1],
            [ 'refunded' , 0],
-       #    [ 'active_recurrings' , 1],
            [ 'active_recurrings' , 0],
            [ 'declined_recurrings' , 0],
        );
@@ -122,18 +137,18 @@ SKIP: {
           for (my $page_num = 1;$page_num <= $expected_pages; $page_num++) {
              $r = $tco->list_sales(cur_page => $page_num, pagesize => $pagesize);
              ok($r->is_success(), 'http 200');
-             my $list = XMLin($r->content(), ForceArray => 1, KeyAttr => {});
+             my $list = to_hash($r->content);
              my $num_sales = num_sales($list);
 
              if ( $page_num < $expected_pages || !$partial_page ) {
-                is($num_sales, $pagesize, "got page $page_num of $expected_pages - $pagesize sales");
+                is($num_sales, $pagesize, "got page $page_num of $expected_pages - $pagesize sales per page"); 
                 next;
              }
-
-             my $partial_size = $num_all_sales - ( $num_full_pages * $pagesize ) ;
-             is($num_sales, $partial_size, "got page $page_num of $expected_pages - $partial_size sales");
-          }
-
+             
+             my $partial_size = $num_all_sales - ( $num_full_pages * $pagesize ) ;   
+             is($num_sales, $partial_size, "got page $page_num of $expected_pages - $partial_size sales on this page"); 
+          } 
+      
        }
     }  # SKIP
 
