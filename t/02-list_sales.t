@@ -49,7 +49,7 @@ sub test_sort {
    }
 
    my $sorted_correctly = all { $_ } @comparisons;
-   ok( $sorted_correctly, "$sort_col:$sort_dir sorts as expected");
+   ok( $sorted_correctly, "$sort_col: $sort_dir sorts as expected");
 }
 
 
@@ -66,7 +66,7 @@ sub test_list_sales {
        ok($num_all_sales > 0 , "got $num_all_sales sales");
     }
 
-    return $r;
+    return $num_all_sales;
 }
 
 
@@ -140,7 +140,7 @@ sub test_input_parameters {
 
 SKIP: {
 
-    foreach my $format ( undef ) {
+    foreach my $format ( undef, 'XML'  ) {
 
         skip "VAPI_2CO_UID && VAPI_2CO_PWD not set in environment" , 5 unless $ENV{VAPI_2CO_UID} && $ENV{VAPI_2CO_PWD};
     
