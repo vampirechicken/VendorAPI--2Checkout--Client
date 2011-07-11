@@ -22,4 +22,14 @@ isa_ok($tco,'VendorAPI::2Checkout::Client');
 can_ok($tco, 'list_sales');
 can_ok($tco, 'detail_sale');
 
+is($tco->_accept(), 'application/xml', 'no accept param, default to XML');
+
+$tco = VendorAPI::2Checkout::Client->new('len', 'somepwd', 'XML');
+is($tco->_accept(), 'application/xml', 'accept param XML good');
+$tco = VendorAPI::2Checkout::Client->new('len', 'somepwd', 'NOMATCH');
+is($tco->_accept(), 'application/xml', 'bad accept param, default to XML');
+$tco = VendorAPI::2Checkout::Client->new('len', 'somepwd', 'JSON');
+is($tco->_accept(), 'application/json', 'accept param JSON good');
+
+
 done_testing();
