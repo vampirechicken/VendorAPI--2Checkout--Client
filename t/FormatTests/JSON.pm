@@ -20,20 +20,28 @@ sub num_sales {
 
 sub num_all_sales {
     my $self = shift;
-    return $_[0]->{page_info}[0]{total_entries}[0];
+    return $_[0]->{page_info}{total_entries};
 }
 
 sub get_col {
     my $self = shift;
     my $sale = shift;
     my $col = shift;
-    return $sale->{$col}[0];
+
+    my $column_value = $sale->{$col};
+    if ($col eq 'recurring_declined' ) {
+       if (!defined $column_value) {
+          return '';
+       }
+    }
+
+    return $column_value;
 }
 
 sub to_hash {
    my $self = shift;
    my $content = shift;
-   my $hash = $self->j->decode($content);
+   my $hash = $self->{j}->decode($content);
    return $hash;
 }
 
