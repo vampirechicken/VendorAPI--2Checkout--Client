@@ -30,6 +30,8 @@ $tco = VendorAPI::2Checkout::Client->new('len', 'somepwd', 'NOMATCH');
 is($tco->_accept(), 'application/xml', 'bad accept param, default to XML');
 $tco = VendorAPI::2Checkout::Client->new('len', 'somepwd', 'JSON');
 is($tco->_accept(), 'application/json', 'accept param JSON good');
+$tco = VendorAPI::2Checkout::Client->new('len', 'somepwd', undef);
+is($tco->_accept(), 'application/xml', 'undef accept param, default to XML');
 
 
 done_testing();
