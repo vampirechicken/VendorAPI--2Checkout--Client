@@ -8,6 +8,10 @@ t/01-instantiate.t
 t/02-list_sales.t
 t/03-detail_sale.t
 t/boilerplate.t
+t/FormatTests.pm
+t/FormatTests/Factory.pm
+t/FormatTests/JSON.pm
+t/FormatTests/XML.pm
 t/manifest.t
 t/pod-coverage.t
 t/pod.t

@@ -18,11 +18,11 @@ VendorAPI::2Checkout::Client - an OO interface to the 2Checkout.com Vendor API
 
 =head1 VERSION
 
-Version 0.08
+Version 0.0801
 
 =cut
 
-our $VERSION = '0.08';
+our $VERSION = '0.0801';
 
 use constant {
      VAPI_BASE_URI => 'https://www.2checkout.com/api/sales',

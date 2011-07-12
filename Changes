@@ -1,5 +1,8 @@
 Revision history for VendorAPI-2Checkout-Client
 
+0.0801  2011-07-12
+        - Some numbskull forgot to run make manifest to add the new test code
+
 0.08    2011-07-11
         - implemented JSON outptu format, and tests for list_sales()
 
