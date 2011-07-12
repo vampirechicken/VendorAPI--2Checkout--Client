@@ -1,5 +1,8 @@
 Revision history for VendorAPI-2Checkout-Client
 
+0.08    2011-07-11
+        - implemented JSON outptu format, and tests for list_sales()
+
 0.07    2011-07-05
         - implemented last three input parameters for list_sales()
 
