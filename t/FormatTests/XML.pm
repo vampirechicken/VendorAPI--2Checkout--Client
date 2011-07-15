@@ -1,5 +1,5 @@
 package FormatTests::XML;
-use parent 'FormatTests';
+use base 'FormatTests';
 
 use strict;
 use warnings;

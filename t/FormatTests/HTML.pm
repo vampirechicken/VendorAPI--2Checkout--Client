@@ -1,15 +1,15 @@
-package FormatTests::JSON;
+package FormatTests::HTML;
 use base 'FormatTests';
 
 use strict;
 use warnings;
 
-use JSON::Any;
+use HTML::TreeBuilder;
 
 
 sub new {
    my $class = shift;
-   return bless { j => JSON::Any->new() }, $class;
+   return bless { }, $class;
 }
 
 

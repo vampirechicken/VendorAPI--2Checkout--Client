@@ -135,7 +135,7 @@ sub test_input_parameters {
 
 
 SKIP: {
-    foreach my $format ( undef, 'XML', 'JSON'  ) {
+    foreach my $format ( 'HTML', undef, 'XML', 'JSON'  ) {
 
         skip "VAPI_2CO_UID && VAPI_2CO_PWD not set in environment" , 5 unless $ENV{VAPI_2CO_UID} && $ENV{VAPI_2CO_PWD};
 
