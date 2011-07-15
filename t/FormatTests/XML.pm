@@ -1,5 +1,5 @@
 package FormatTests::XML;
-use parent 'FormatTests';
+use base 'FormatTests';
 
 use strict;
 use warnings;
@@ -13,12 +13,14 @@ sub new {
 
 sub num_sales {
    my $self = shift;
-   scalar @{ $_[0]->{sale_summary} };
+   my $results = shift;
+   scalar @{ $results->{sale_summary} };
 }
 
 sub num_all_sales {
     my $self = shift;
-    $_[0]->{page_info}[0]{total_entries}[0];
+    my $results = shift;
+    $results->{page_info}[0]{total_entries}[0];
 }
 
 sub get_col {

@@ -1,5 +1,5 @@
 package FormatTests::JSON;
-use parent 'FormatTests';
+use base 'FormatTests';
 
 use strict;
 use warnings;
@@ -15,12 +15,14 @@ sub new {
 
 sub num_sales {
    my $self = shift;
-   return scalar @{ $_[0]->{sale_summary} };
+   my $results = shift;
+   return scalar @{ $results->{sale_summary} };
 }
 
 sub num_all_sales {
     my $self = shift;
-    return $_[0]->{page_info}{total_entries};
+    my $results = shift;
+    return $results->{page_info}{total_entries};
 }
 
 sub get_col {
@@ -44,8 +46,6 @@ sub to_hash {
    my $hash = $self->{j}->decode($content);
    return $hash;
 }
-
-
 
 
 1
