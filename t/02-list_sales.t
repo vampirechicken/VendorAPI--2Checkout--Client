@@ -59,6 +59,7 @@ sub test_list_sales {
 
     my $r = $tco->list_sales();
     ok($r->is_success(), 'http 200');
+
     my $list = $format_tests->to_hash($r->content());
     my $num_all_sales = $format_tests->num_all_sales($list);
 
@@ -109,7 +110,6 @@ sub test_input_parameters {
       my $rv = test_parameter($tco, $param => $value, $format_tests);
    }
 
-
    # pagination
    for (my $pagesize = 1; $pagesize <= $num_all_sales; $pagesize++) {
       my $num_full_pages = int($num_all_sales / $pagesize);
@@ -135,13 +135,12 @@ sub test_input_parameters {
 
 
 SKIP: {
-    foreach my $format ( 'HTML', undef, 'XML', 'JSON'  ) {
+    foreach my $format ( undef, 'XML', 'JSON'  ) {
 
         skip "VAPI_2CO_UID && VAPI_2CO_PWD not set in environment" , 5 unless $ENV{VAPI_2CO_UID} && $ENV{VAPI_2CO_PWD};
 
-        my $format_tests = FormatTests::Factory->get_format_tests($format);
-
         my $tco = VendorAPI::2Checkout::Client->new( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, $format );
+        my $format_tests = FormatTests::Factory->get_format_tests($format);
 
         ok(defined $tco, "new: got object");
         isa_ok($tco,'VendorAPI::2Checkout::Client');

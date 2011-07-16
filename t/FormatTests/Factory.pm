@@ -2,7 +2,6 @@ package FormatTests::Factory;
 
 use FormatTests::XML;
 use FormatTests::JSON;
-use FormatTests::HTML;
 
 use strict;
 use warnings;

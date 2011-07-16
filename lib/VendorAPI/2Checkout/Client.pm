@@ -18,11 +18,11 @@ VendorAPI::2Checkout::Client - an OO interface to the 2Checkout.com Vendor API
 
 =head1 VERSION
 
-Version 0.0901
+Version 0.0802
 
 =cut
 
-our $VERSION = '0.0901';
+our $VERSION = '0.0802';
 
 use constant {
      VAPI_BASE_URI => 'https://www.2checkout.com/api/sales',
@@ -66,7 +66,7 @@ You must pass your Vendor API username and password or the constructor will retu
 
 =cut
 
-my %accept_mime_types = ( XML => 'application/xml', JSON => 'application/json', HTML => 'application/html' );
+my %accept_mime_types = ( XML => 'application/xml', JSON => 'application/json', );
 
 sub new {
    my $class = shift;
@@ -78,7 +78,7 @@ sub new {
       return undef;
    }
 
-   unless ( defined $accept && $accept =~ qr/^(?:XML|JSON|HTML)$/) {
+   unless ( defined $accept && $accept =~ qr/^(?:XML|JSON)$/) {
       $accept = 'XML';
    }
 
@@ -186,9 +186,6 @@ Len Jaffe, C<< <lenjaffe at jaffesystems.com> >>
 Please report any bugs or feature requests to C<bug-vendorapi-2checkout-client at rt.cpan.org>, or through
 the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=VendorAPI-2Checkout-Client>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
-
-
-
 
 =head1 SUPPORT
 
