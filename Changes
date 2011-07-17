@@ -1,5 +1,8 @@
 Revision history for VendorAPI-2Checkout-Client
 
+0.0900  2011-07-17
+        - add list_coupons()
+
 0.0802  2011-07-15
         - change from use parent to use base to allow for pre 5.10 compatibility (for now)
 

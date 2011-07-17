@@ -47,5 +47,10 @@ sub to_hash {
    return $hash;
 }
 
+sub num_coupons {
+    my $self = shift;
+    my $results = shift;
+    return scalar @{ $results->{coupon} };
+}
 
 1

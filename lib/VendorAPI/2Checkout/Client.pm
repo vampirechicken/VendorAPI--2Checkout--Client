@@ -18,14 +18,14 @@ VendorAPI::2Checkout::Client - an OO interface to the 2Checkout.com Vendor API
 
 =head1 VERSION
 
-Version 0.0802
+Version 0.0900
 
 =cut
 
-our $VERSION = '0.0802';
+our $VERSION = '0.0900';
 
 use constant {
-     VAPI_BASE_URI => 'https://www.2checkout.com/api/sales',
+     VAPI_BASE_URI => 'https://www.2checkout.com/api',
      VAPI_REALM    => '2CO API',
      VAPI_NETLOC   => 'www.2checkout.com:443',
 };
@@ -34,11 +34,12 @@ use constant {
 
     use VendorAPI::2Checkout::Client;
 
-    my $tco = VendorAPI::2Checkout::Client->new($username, $password);
-    $sales = $tco->list_sales();
+    my $tco = VendorAPI::2Checkout::Client->new($username, $password, $format);
+    $response = $tco->list_sales();
 
-    $sale = $tco->detail_sale(sale_id => 1234554323);
+    $rsponse = $tco->detail_sale(sale_id => 1234554323);
 
+    $response = $tco->list_coupons();
     ...
 
 =head1 DESCRIPTION
@@ -89,7 +90,7 @@ sub new {
 }
 
 
-=item $sales = $c->list_sales();
+=item $response = $c->list_sales();
 
 Retrieves the list of sales for the vendor
 
@@ -120,11 +121,10 @@ my %v = (
 
 my $_profile = { map { $_ => $v{$_} } keys %v };
 
-sub _accept_header();
 
 sub list_sales {
    my $self = shift;
-   my $uri = URI->new(VAPI_BASE_URI . '/list_sales');
+   my $uri = URI->new(VAPI_BASE_URI . '/sales/list_sales');
    my %headers = ( Accept => $self->_accept() ); 
 
    my %input_params = validate(@_, $_profile);
@@ -136,7 +136,22 @@ sub list_sales {
    $self->_ua->get($uri, %headers);
 }
 
-=item  $sale = $c->detail_sale(sale_id => $sale_id);
+=item $response = $c->list_coupons();
+
+Retrieves the list of coupons for the vendor
+
+=cut
+
+sub list_coupons {
+   my $self = shift;
+   my $uri = URI->new(VAPI_BASE_URI . '/products/list_coupons');
+   my %headers = ( Accept => $self->_accept() ); 
+   $self->_ua->get($uri, %headers);
+}
+
+
+
+=item  $response = $c->detail_sale(sale_id => $sale_id);
 
 Retrieves the details for the named sale.
 
@@ -153,7 +168,7 @@ sub detail_sale {
       confess("detail_sale requires sale_id or invoice_id and received neither");
    }
 
-   my $uri = URI->new(VAPI_BASE_URI . '/detail_sale');
+   my $uri = URI->new(VAPI_BASE_URI . '/sales/detail_sale');
    my %headers = ( Accept => $self->_accept() );
 
    if ($p{invoice_id} ) {
