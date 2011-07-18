@@ -10,19 +10,17 @@ use Carp qw(confess);
 use URI;
 use URI::QueryParam;
 
-use Data::Dumper;
-
 =head1 NAME
 
 VendorAPI::2Checkout::Client - an OO interface to the 2Checkout.com Vendor API
 
 =head1 VERSION
 
-Version 0.0901
+Version 0.0902
 
 =cut
 
-our $VERSION = '0.0901';
+our $VERSION = '0.0902';
 
 use constant {
      VAPI_BASE_URI => 'https://www.2checkout.com/api',
@@ -37,9 +35,12 @@ use constant {
     my $tco = VendorAPI::2Checkout::Client->new($username, $password, $format);
     $response = $tco->list_sales();
 
-    $rsponse = $tco->detail_sale(sale_id => 1234554323);
+    $response = $tco->detail_sale(sale_id => 1234554323);
 
     $response = $tco->list_coupons();
+
+    $response = $tco->detail_coupon(coupon_code => 'COUPON42');
+
     ...
 
 =head1 DESCRIPTION
@@ -49,9 +50,9 @@ This module is an OO interface to the 2Checkout.com Vendor API.
 This modules uses Params::Validate which likes to die() when the parameters do not pass validation, so
 wrap your code in evals, etc.
 
-Presently only implements list_sales (no params), and detail_sale( sale_id => $sale_id ).
+Presently implements list_sales(), detail_sale(), list_coupons(), and detail_coupon().
 
-Return data is in XML. Requesting JSON not implemented yet.
+Return data is in XML or JSON.
 
 Please refer to L<2Checkout's Back Office Admin API Documentation|http://www.2checkout.com/documentation/api>
 for input parameters and expexted return values.
@@ -60,7 +61,7 @@ for input parameters and expexted return values.
 
 =over 4
 
-=item $c = VendorAPI::2Checkout::Client->new($username, $password)
+=item $c = VendorAPI::2Checkout::Client->new($username, $password, $format)
 
 Contructs a new C<VendorAPI::2Checkout::Client> object to comminuncate with the 2Checkout Back Office Admin API.
 You must pass your Vendor API username and password or the constructor will return undef;
@@ -83,12 +84,10 @@ sub new {
       $accept = 'XML';
    }
 
-
    my $ua = LWP::UserAgent->new( agent => "VendorAPI::2Checkout::Client/${VERSION} " );
    $ua->credentials(VAPI_NETLOC, VAPI_REALM, $username, $password);
    return bless { ua => $ua, accept => $accept_mime_types{$accept}  }, $class;
 }
-
 
 =item $response = $c->list_sales();
 
@@ -100,32 +99,32 @@ my $sort_col_re = qr/^(sale_id|date_placed|customer_name|recurring|recurring_dec
 my $sort_dir_re = qr/^(ASC|DESC)$/;
 
 my %v = (
-             sale_id => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
-             invoice_id => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
-             pagesize => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
-             cur_page => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
-             customer_name => { type => SCALAR, regex => qw/^[-A-Za-z.]+$/ , untaint => 1, optional => 1, },
-             customer_email => { type => SCALAR, regex => qw/^[-\w.+@]+$/ , untaint => 1, optional => 1, },
-             customer_phone => { type => SCALAR, regex => qw/^[\d()-]+$/ , untaint => 1, optional => 1, },
-             vendor_product_id => { type => SCALAR, regex => qw/^.+$/ , untaint => 1, optional => 1, },
-             ccard_first6 => { type => SCALAR, regex => qw/^\d{6}$/ , untaint => 1, optional => 1, },
-             ccard_last2 => { type => SCALAR, regex => qw/^\d\d$/ , untaint => 1, optional => 1, },
-             date_sale_end  => { type => SCALAR, regex => qw/^\d{4}-\d\d-\d\d$/ , untaint => 1, optional => 1, },
-             date_sale_begin  => { type => SCALAR, regex => qw/^\d{4}-\d\d-\d\d$/ , untaint => 1, optional => 1, },
-             sort_col => { type => SCALAR, regex => $sort_col_re  , untaint => 1, optional => 1, },
-             sort_dir => { type => SCALAR, regex => $sort_dir_re , untaint => 1, optional => 1, },
-             active_recurrings => { type => SCALAR, regex => qr/^[01]$/, untaint => 1, optional => 1, },
+             sale_id             => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
+             invoice_id          => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
+             pagesize            => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
+             cur_page            => { type => SCALAR, regex => qw/^\d+$/ , untaint => 1, optional => 1, },
+             customer_name       => { type => SCALAR, regex => qw/^[-A-Za-z.]+$/ , untaint => 1, optional => 1, },
+             customer_email      => { type => SCALAR, regex => qw/^[-\w.+@]+$/ , untaint => 1, optional => 1,   },
+             customer_phone      => { type => SCALAR, regex => qw/^[\d()-]+$/ , untaint => 1, optional => 1,    },
+             vendor_product_id   => { type => SCALAR, regex => qw/^.+$/ , untaint => 1, optional => 1,    },
+             ccard_first6        => { type => SCALAR, regex => qw/^\d{6}$/ , untaint => 1, optional => 1, },
+             ccard_last2         => { type => SCALAR, regex => qw/^\d\d$/ , untaint => 1, optional => 1,  },
+             date_sale_end       => { type => SCALAR, regex => qw/^\d{4}-\d\d-\d\d$/ , untaint => 1, optional => 1, },
+             date_sale_begin     => { type => SCALAR, regex => qw/^\d{4}-\d\d-\d\d$/ , untaint => 1, optional => 1, },
+             sort_col            => { type => SCALAR, regex => $sort_col_re  , untaint => 1, optional => 1, },
+             sort_dir            => { type => SCALAR, regex => $sort_dir_re , untaint => 1, optional => 1,  },
+             active_recurrings   => { type => SCALAR, regex => qr/^[01]$/, untaint => 1, optional => 1, },
              declined_recurrings => { type => SCALAR, regex => qr/^[01]$/, untaint => 1, optional => 1, },
-             refunded => { type => SCALAR, regex => qr/^[01]$/, untaint => 1, optional => 1, },
+             refunded            => { type => SCALAR, regex => qr/^[01]$/, untaint => 1, optional => 1, },
+             coupon_code         => { type => SCALAR, regex => qr/^\w+$/, untaint => 1, optional => 0,  },
         );
 
 my $_profile = { map { $_ => $v{$_} } keys %v };
 
-
 sub list_sales {
    my $self = shift;
    my $uri = URI->new(VAPI_BASE_URI . '/sales/list_sales');
-   my %headers = ( Accept => $self->_accept() ); 
+   my %headers = ( Accept => $self->_accept() );
 
    my %input_params = validate(@_, $_profile);
 
@@ -145,11 +144,9 @@ Retrieves the list of coupons for the vendor
 sub list_coupons {
    my $self = shift;
    my $uri = URI->new(VAPI_BASE_URI . '/products/list_coupons');
-   my %headers = ( Accept => $self->_accept() ); 
+   my %headers = ( Accept => $self->_accept() );
    $self->_ua->get($uri, %headers);
 }
-
-
 
 =item  $response = $c->detail_sale(sale_id => $sale_id);
 
@@ -157,11 +154,10 @@ Retrieves the details for the named sale.
 
 =cut
 
-my $_detail_profile = { map { $_ => $v{$_} } qw/sale_id invoice_id accept/ };
-
 sub detail_sale {
    my $self = shift;
 
+   my $_detail_profile = { map { $_ => $v{$_} } qw/sale_id invoice_id/ };
    my %p = validate(@_, $_detail_profile);
 
    unless ($p{sale_id} || $p{invoice_id}) {
@@ -181,6 +177,29 @@ sub detail_sale {
    $self->_ua->get($uri, %headers);
 }
 
+=item  $response = $c->detail_coupon(coupon_code => $coupon_code);
+
+Retrieves the details for the named coupon.
+
+=cut
+
+sub detail_coupon {
+   my $self = shift;
+   my $_detail_profile = { map { $_ => $v{$_} } qw/coupon_code/ };
+
+   my %p = validate(@_, $_detail_profile);
+
+   unless ( $p{coupon_code} ) {
+      confess("detail_coupon requires coupon_code");
+   }
+
+   my $uri = URI->new(VAPI_BASE_URI . '/products/detail_coupon');
+   my %headers = ( Accept => $self->_accept() );
+
+   $uri->query_param(coupon_code => $p{coupon_code});
+
+   $self->_ua->get($uri, %headers);
+}
 
 sub _accept {
    $_[0]->{accept};
@@ -196,6 +215,11 @@ sub _ua {
 
 Len Jaffe, C<< <lenjaffe at jaffesystems.com> >>
 
+=head1 GITHUB
+
+The source code is available at
+L<Github|https://github.com/vampirechicken/VendorAPI--2Checkout--Client>
+
 =head1 BUGS
 
 Please report any bugs or feature requests to C<bug-vendorapi-2checkout-client at rt.cpan.org>, or through
@@ -207,7 +231,6 @@ automatically be notified of progress on your bug as I make changes.
 You can find documentation for this module with the perldoc command.
 
     perldoc VendorAPI::2Checkout::Client
-
 
 You can also look for information at:
 
@@ -231,9 +254,7 @@ L<http://search.cpan.org/dist/VendorAPI-2Checkout-Client/>
 
 =back
 
-
 =head1 ACKNOWLEDGEMENTS
-
 
 =head1 LICENSE AND COPYRIGHT
 
@@ -244,7 +265,6 @@ under the terms of either: the GNU General Public License as published
 by the Free Software Foundation; or the Artistic License.
 
 See http://dev.perl.org/licenses/ for more information.
-
 
 =cut
 

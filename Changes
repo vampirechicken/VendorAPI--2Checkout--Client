@@ -1,5 +1,8 @@
 Revision history for VendorAPI-2Checkout-Client
 
+0.0902  2011-07-17
+        - added detail_coupon()
+
 0.0901  2011-07-17
         - forgot to update README for VAPI_HAS_COUPONS
 
