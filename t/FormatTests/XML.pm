@@ -43,5 +43,11 @@ sub num_coupons {
     return scalar @{ $results->{coupon} };
 }
 
+sub num_payments {
+    my $self = shift;
+    my $results = shift;
+    return scalar @{ $results->{payments} };
+}
+
 
 1

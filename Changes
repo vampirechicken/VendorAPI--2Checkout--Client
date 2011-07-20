@@ -1,5 +1,8 @@
 Revision history for VendorAPI-2Checkout-Client
 
+0.1000  2011-07-19
+        - added list_payments()
+
 0.0902  2011-07-17
         - added detail_coupon()
 

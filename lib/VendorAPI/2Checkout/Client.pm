@@ -16,11 +16,11 @@ VendorAPI::2Checkout::Client - an OO interface to the 2Checkout.com Vendor API
 
 =head1 VERSION
 
-Version 0.0902
+Version 0.1000
 
 =cut
 
-our $VERSION = '0.0902';
+our $VERSION = '0.1000';
 
 use constant {
      VAPI_BASE_URI => 'https://www.2checkout.com/api',
@@ -40,6 +40,8 @@ use constant {
     $response = $tco->list_coupons();
 
     $response = $tco->detail_coupon(coupon_code => 'COUPON42');
+
+    $response = $tco->list_payments();
 
     ...
 
@@ -116,7 +118,6 @@ my %v = (
              active_recurrings   => { type => SCALAR, regex => qr/^[01]$/, untaint => 1, optional => 1, },
              declined_recurrings => { type => SCALAR, regex => qr/^[01]$/, untaint => 1, optional => 1, },
              refunded            => { type => SCALAR, regex => qr/^[01]$/, untaint => 1, optional => 1, },
-             coupon_code         => { type => SCALAR, regex => qr/^\w+$/, untaint => 1, optional => 0,  },
         );
 
 my $_profile = { map { $_ => $v{$_} } keys %v };
@@ -185,7 +186,9 @@ Retrieves the details for the named coupon.
 
 sub detail_coupon {
    my $self = shift;
-   my $_detail_profile = { map { $_ => $v{$_} } qw/coupon_code/ };
+   my $_detail_profile = {
+             coupon_code => { type => SCALAR, regex => qr/^\w+$/, untaint => 1, optional => 0, },
+                         };
 
    my %p = validate(@_, $_detail_profile);
 
@@ -200,6 +203,22 @@ sub detail_coupon {
 
    $self->_ua->get($uri, %headers);
 }
+
+=item $response = $c->list_payments();
+
+Retrieves the list of payments for the vendor
+
+=cut
+
+sub list_payments {
+   my $self = shift;
+   my $uri = URI->new(VAPI_BASE_URI . '/acct/list_payments');
+   my %headers = ( Accept => $self->_accept() );
+   $self->_ua->get($uri, %headers);
+}
+
+
+
 
 sub _accept {
    $_[0]->{accept};

@@ -12,26 +12,22 @@ BEGIN {
     use_ok( 'VendorAPI::2Checkout::Client' ) || print "Bail out!\n";
 }
 
-
-
-sub test_list_coupons {
+sub test_list_payments {
    my $tco = shift;
    my $format_tests = shift;
 
-    my $r = $tco->list_coupons();
+    my $r = $tco->list_payments();
     ok($r->is_success(), 'http 200');
 
     my $list = $format_tests->to_hash($r->content());
-    my $num_coupons = $format_tests->num_coupons($list);
+    my $num_payments = $format_tests->num_payments($list);
 
-    if (defined $ENV{VAPI_HAS_COUPONS} && $ENV{VAPI_HAS_COUPONS} > 0 ) {
-       ok($num_coupons > 0 , "got $num_coupons coupons");
+    if (defined $ENV{VAPI_HAS_PAYMENTS} && $ENV{VAPI_HAS_PAYMENTS} > 0 ) {
+       ok($num_payments > 0 , "got $num_payments payments");
     }
 
-    return $num_coupons;
+    return $num_payments;
 }
-
-
 
 
 SKIP: {
@@ -45,7 +41,7 @@ SKIP: {
        ok(defined $tco, "new: got object");
        isa_ok($tco,'VendorAPI::2Checkout::Client');
 
-       my $num_coupons = test_list_coupons($tco, $format_tests);
+       my $num_payments = test_list_payments($tco, $format_tests);
 
     }
 }  # SKIP

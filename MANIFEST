@@ -9,6 +9,7 @@ t/02-list_sales.t
 t/03-detail_sale.t
 t/04-list_coupons.t
 t/05-detail_coupon.t
+t/06-list_payments.t
 t/boilerplate.t
 t/FormatTests.pm
 t/FormatTests/Factory.pm
