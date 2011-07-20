@@ -136,7 +136,6 @@ sub test_input_parameters {
 
 SKIP: {
     foreach my $format ( undef, 'XML', 'JSON'  ) {
-
         skip "VAPI_2CO_UID && VAPI_2CO_PWD not set in environment" , 5 unless $ENV{VAPI_2CO_UID} && $ENV{VAPI_2CO_PWD};
 
         my $tco = VendorAPI::2Checkout::Client->new( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, $format );

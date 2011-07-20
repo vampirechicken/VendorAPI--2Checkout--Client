@@ -10,6 +10,8 @@ t/03-detail_sale.t
 t/04-list_coupons.t
 t/05-detail_coupon.t
 t/06-list_payments.t
+t/07-list_products.t
+t/08-list_options.t
 t/boilerplate.t
 t/FormatTests.pm
 t/FormatTests/Factory.pm

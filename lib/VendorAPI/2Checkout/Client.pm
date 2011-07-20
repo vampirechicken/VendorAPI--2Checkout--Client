@@ -16,11 +16,11 @@ VendorAPI::2Checkout::Client - an OO interface to the 2Checkout.com Vendor API
 
 =head1 VERSION
 
-Version 0.1000
+Version 0.1100
 
 =cut
 
-our $VERSION = '0.1000';
+our $VERSION = '0.1100';
 
 use constant {
      VAPI_BASE_URI => 'https://www.2checkout.com/api',
@@ -43,6 +43,10 @@ use constant {
 
     $response = $tco->list_payments();
 
+    $response = $tco->list_products();
+
+    $response = $tco->list_options();
+
     ...
 
 =head1 DESCRIPTION
@@ -52,7 +56,8 @@ This module is an OO interface to the 2Checkout.com Vendor API.
 This modules uses Params::Validate which likes to die() when the parameters do not pass validation, so
 wrap your code in evals, etc.
 
-Presently implements list_sales(), detail_sale(), list_coupons(), and detail_coupon().
+Presently implements list_sales(), detail_sale(), list_coupons(), and detail_coupon(), list_payments(), 
+list_options(), list_products().
 
 Return data is in XML or JSON.
 
@@ -217,8 +222,34 @@ sub list_payments {
    $self->_ua->get($uri, %headers);
 }
 
+=item $response = $c->list_products();
+
+Retrieves the list of products for the vendor
+
+=cut
+
+sub list_products {
+   my $self = shift;
+   my $uri = URI->new(VAPI_BASE_URI . '/products/list_products');
+   my %headers = ( Accept => $self->_accept() );
+   $self->_ua->get($uri, %headers);
+}
+
+=item $response = $c->list_options();
+
+Retrieves the list of options for the vendor
+
+=cut
+
+sub list_options {
+   my $self = shift;
+   my $uri = URI->new(VAPI_BASE_URI . '/products/list_options');
+   my %headers = ( Accept => $self->_accept() );
+   $self->_ua->get($uri, %headers);
+}
 
 
+#####################################################
 
 sub _accept {
    $_[0]->{accept};

@@ -25,6 +25,8 @@ so wrap your calls in evals, etc.
 If you have sales, set VAPI_HAS_SALES=1 - if you have none, unset it, or don't set it. 
 If you have coupons, set VAPI_HAS_COUPONS=1 - if you have none, unset it, or don't set it. 
 If you have payments, set VAPI_HAS_PAYMENTS=1 - if you have none, unset it, or don't set it. 
+If you have products, set VAPI_HAS_PRODUCTS=1 - if you have none, unset it, or don't set it. 
+If you have options, set VAPI_HAS_OPTIONS=1 - if you have none, unset it, or don't set it. 
 
 INSTALLATION
 
@@ -32,7 +34,8 @@ To install this module, run the following commands:
 
 	perl Makefile.PL
 	make
-        export VAPI_HAS_SALES=1 VAPI_HAS_COUPONS=1 VAPI_HAS_PAYMENTS=1
+        export VAPI_HAS_SALES=1 VAPI_HAS_COUPONS=1 VAPI_HAS_PAYMENTS=1 
+        export VAPI_HAS_PRODUCTS=1 VAPI_HAS_OPTIONS=1
 	env VAPI_2CO_UID=myapiuser VAPI_2CO_PWD=mypasswd make test
 	make install
 

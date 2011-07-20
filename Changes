@@ -1,5 +1,11 @@
 Revision history for VendorAPI-2Checkout-Client
 
+0.1100  2011-07-19
+        - added list_options()
+        - added list_products()
+        - refactored FormatTests modules
+        - added tests for 'RECORD_NOT_FOUND' conditions.
+
 0.1000  2011-07-19
         - added list_payments()
 

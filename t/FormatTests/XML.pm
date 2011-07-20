@@ -37,17 +37,19 @@ sub to_hash {
    return $hash;
 }
 
-sub num_coupons {
-    my $self = shift;
-    my $results = shift;
-    return scalar @{ $results->{coupon} };
+sub error_code {
+  my $self = shift;
+  my $list = shift;
+  return $list->{errors}[0]{code}[0];
 }
 
-sub num_payments {
+
+sub count_records {
     my $self = shift;
     my $results = shift;
-    return scalar @{ $results->{payments} };
+    my $record_type = shift;
+    $record_type = 'coupon' if $record_type eq 'coupons';
+    return scalar @{ $results->{$record_type} };
 }
-
 
 1

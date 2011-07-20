@@ -10,13 +10,13 @@ use FormatTests::Factory;
 
 BEGIN { use_ok( 'VendorAPI::2Checkout::Client' ) || print "Bail out!\n"; }
 
-sub test_list_coupons {
+sub test_list_products {
     my $tco = shift;
     my $format_tests = shift;
 
-    my $r = $tco->list_coupons();
-    if (defined $ENV{VAPI_HAS_COUPONS} && $ENV{VAPI_HAS_COUPONS} > 0 ) {
-       $format_tests->has_records($r, "coupons");
+    my $r = $tco->list_products();
+    if (defined $ENV{VAPI_HAS_PAYMENTS} && $ENV{VAPI_HAS_PAYMENTS} > 0 ) {
+       $format_tests->has_records($r, "products");
     }
     else {
        $format_tests->has_none($r);
@@ -33,8 +33,7 @@ SKIP: {
        ok(defined $tco, "new: got object");
        isa_ok($tco,'VendorAPI::2Checkout::Client');
 
-       test_list_coupons($tco, $format_tests);
-
+       test_list_products($tco, $format_tests);
     }
 }  # SKIP
 

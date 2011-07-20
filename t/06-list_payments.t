@@ -13,26 +13,20 @@ BEGIN {
 }
 
 sub test_list_payments {
-   my $tco = shift;
-   my $format_tests = shift;
+    my $tco = shift;
+    my $format_tests = shift;
 
     my $r = $tco->list_payments();
-    ok($r->is_success(), 'http 200');
-
-    my $list = $format_tests->to_hash($r->content());
-    my $num_payments = $format_tests->num_payments($list);
-
     if (defined $ENV{VAPI_HAS_PAYMENTS} && $ENV{VAPI_HAS_PAYMENTS} > 0 ) {
-       ok($num_payments > 0 , "got $num_payments payments");
+       $format_tests->has_records($r, "payments");
     }
-
-    return $num_payments;
+    else {
+       $format_tests->has_none($r);
+    }
 }
-
 
 SKIP: {
     foreach my $format ( undef, 'XML', 'JSON'  ) {
-
        skip "VAPI_2CO_UID && VAPI_2CO_PWD not set in environment" , 3 unless $ENV{VAPI_2CO_UID} && $ENV{VAPI_2CO_PWD};
 
        my $tco = VendorAPI::2Checkout::Client->new( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, $format );
@@ -41,7 +35,7 @@ SKIP: {
        ok(defined $tco, "new: got object");
        isa_ok($tco,'VendorAPI::2Checkout::Client');
 
-       my $num_payments = test_list_payments($tco, $format_tests);
+       test_list_payments($tco, $format_tests);
 
     }
 }  # SKIP
