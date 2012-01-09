@@ -1,5 +1,8 @@
 Revision history for VendorAPI-2Checkout-Client
 
+0.1200  2012-01-09
+        - made sorts and comparisons case-insensitive
+
 0.1100  2011-07-19
         - added list_options()
         - added list_products()
