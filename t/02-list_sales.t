@@ -34,7 +34,7 @@ sub test_sort {
 
    my $sales = $list->{sale_summary};
    my @raw_columns =  map { $tests->get_col($_, $sort_col) } @$sales;
-   my @sort_columns = sort map { $tests->get_col($_, $sort_col) } @$sales;
+   my @sort_columns = sort { lc $a cmp lc $b } map { $tests->get_col($_, $sort_col) } @$sales;
    if ($sort_dir eq 'DESC') {
        @sort_columns = reverse @sort_columns;
    }
@@ -44,7 +44,7 @@ sub test_sort {
       @comparisons = pairwise { my %a = %{$a}; my %b = %{$b}; %a == %b } @sort_columns, @raw_columns;
    }
    else {
-      @comparisons = pairwise { no warnings 'once'; $a eq $b } @sort_columns, @raw_columns;
+      @comparisons = pairwise { no warnings 'once'; lc $a eq lc $b } @sort_columns, @raw_columns;
    }
 
 
