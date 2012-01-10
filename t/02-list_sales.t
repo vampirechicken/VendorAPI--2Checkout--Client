@@ -24,9 +24,8 @@ sub test_parameter {
 }
 
 sub test_sort {
-   my ($ua, $sort_col, $sort_dir, $tests) = @_;
-
-   my $r = $ua->list_sales(sort_col => $sort_col, sort_dir => $sort_dir);
+   my ($tco, $sort_col, $sort_dir, $tests) = @_;
+   my $r = $tco->list_sales(sort_col => $sort_col, sort_dir => $sort_dir);
    ok($r->is_success(), 'http 200');
    my $list = $tests->to_hash($r->content());
    my $num_sales = $tests->num_sales($list);
@@ -47,27 +46,24 @@ sub test_sort {
       @comparisons = pairwise { no warnings 'once'; lc $a eq lc $b } @sort_columns, @raw_columns;
    }
 
-
    my $sorted_correctly = all { $_ } @comparisons;
    ok( $sorted_correctly, "$sort_col: $sort_dir sorts as expected");
 }
 
-
 sub test_list_sales {
    my $tco = shift;
    my $format_tests = shift;
+   my $r = $tco->list_sales();
+   ok($r->is_success(), 'http 200');
 
-    my $r = $tco->list_sales();
-    ok($r->is_success(), 'http 200');
+   my $list = $format_tests->to_hash($r->content());
+   my $num_all_sales = $format_tests->num_all_sales($list);
 
-    my $list = $format_tests->to_hash($r->content());
-    my $num_all_sales = $format_tests->num_all_sales($list);
+   if (defined $ENV{VAPI_HAS_SALES} && $ENV{VAPI_HAS_SALES} > 0 ) {
+      ok($num_all_sales > 0 , "got $num_all_sales sales");
+   }
 
-    if (defined $ENV{VAPI_HAS_SALES} && $ENV{VAPI_HAS_SALES} > 0 ) {
-       ok($num_all_sales > 0 , "got $num_all_sales sales");
-    }
-
-    return $num_all_sales;
+   return $num_all_sales;
 }
 
 
@@ -135,23 +131,27 @@ sub test_input_parameters {
 
 
 SKIP: {
-    foreach my $format ( undef, 'XML', 'JSON'  ) {
+    foreach my $moosage ( 0..1 ) {
+      diag $moosage ? 'Moose' : 'No Moose';
+      foreach my $format ( 'XML', 'JSON'  ) {
+        diag $format;
+        sleep 1;
         skip "VAPI_2CO_UID && VAPI_2CO_PWD not set in environment" , 5 unless $ENV{VAPI_2CO_UID} && $ENV{VAPI_2CO_PWD};
-
-        my $tco = VendorAPI::2Checkout::Client->new( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, $format );
+        my $tco = VendorAPI::2Checkout::Client->new( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, $format, $moosage );
         my $format_tests = FormatTests::Factory->get_format_tests($format);
 
         ok(defined $tco, "new: got object");
-        isa_ok($tco,'VendorAPI::2Checkout::Client');
+        #isa_ok($tco,'VendorAPI::2Checkout::Client');
 
         my $num_all_sales = test_list_sales($tco, $format_tests);
 
         # now try out some input parameters
         SKIP: {
-           skip "list_sales input param tests require a vendor account with at leat 2 sales", $num_all_sales unless $num_all_sales >= 2;
-           test_input_parameters($tco, $num_all_sales, $format_tests);
+          skip "list_sales input param tests require a vendor account with at leat 2 sales", $num_all_sales unless $num_all_sales >= 2;
+          test_input_parameters($tco, $num_all_sales, $format_tests);
         }  # SKIP
+      }
     }
-}  # SKIP
+}   # SKIP
 
 done_testing();

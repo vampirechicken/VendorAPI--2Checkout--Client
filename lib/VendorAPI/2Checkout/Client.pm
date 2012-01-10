@@ -11,6 +11,7 @@ use URI;
 use URI::QueryParam;
 
 use VendorAPI::2Checkout::Client::NoMoose;
+use VendorAPI::2Checkout::Client::Moose;
 
 require Exporter;
 
@@ -26,7 +27,7 @@ Version 0.1300
 =cut
 
 use vars qw( $VERSION @ISA @EXPORT_OK %EXPORT_TAGS ); 
-$VERSION = '0.1300';
+$VERSION = '0.1400';
 
 
 sub _base_uri { 'https://www.2checkout.com/api' };
@@ -39,12 +40,12 @@ use constant {
 };
 
 @ISA = qw( Exporter );
-%EXPORT_TAGS = ( ':constants' => [ qw( 
+%EXPORT_TAGS = ( 'constants' => [ qw( 
                                        VAPI_MOOSE VAPI_NO_MOOSE
                                      )
                                  ]
                );
-@EXPORT_OK = qw( @{ $EXPORT_TAGS{':constants'} } );
+@EXPORT_OK = @{ $EXPORT_TAGS{'constants'} } ;
 
 =head1 SYNOPSIS
 
@@ -109,11 +110,11 @@ sub new {
    }
 
    unless ( defined $accept && $accept =~ qr/^(?:XML|JSON)$/) {
-      $accept = 'XML';
+      return undef;
    }
 
    if (defined $use_moose && $use_moose) {
-      die 'Moose not implemented yet'
+      return VendorAPI::2Checkout::Client::Moose->new($username, $password, $accept, VAPI_MOOSE);
    }
 
    return VendorAPI::2Checkout::Client::NoMoose->new($username, $password, $accept);

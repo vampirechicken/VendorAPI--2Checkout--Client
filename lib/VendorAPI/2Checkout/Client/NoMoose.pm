@@ -24,7 +24,7 @@ use vars qw( $VERSION @ISA $super );
 
 $super = 'VendorAPI::2Checkout::Client';
 @ISA = ( $super );
-$VERSION = '0.1300';
+$VERSION = '0.1400';
 
 =head1 SYNOPSIS
 

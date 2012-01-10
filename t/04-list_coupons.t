@@ -24,7 +24,7 @@ sub test_list_coupons {
 }
 
 SKIP: {
-    foreach my $format ( undef, 'XML', 'JSON'  ) {
+    foreach my $format ( 'XML', 'JSON'  ) {
        skip "VAPI_2CO_UID && VAPI_2CO_PWD not set in environment" , 3 unless $ENV{VAPI_2CO_UID} && $ENV{VAPI_2CO_PWD};
 
        my $tco = VendorAPI::2Checkout::Client->new( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, $format );
