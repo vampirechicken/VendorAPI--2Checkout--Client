@@ -4,10 +4,7 @@ use strict;
 use warnings;
 
 use Test::More ;
-
-BEGIN {
-    use_ok( 'VendorAPI::2Checkout::Client' ) || print "Bail out!\n";
-}
+use VendorAPI::2Checkout::Client qw( :constants );
 
 my $tco = VendorAPI::2Checkout::Client->new();
 ok(!defined $tco, "new: username and password are required - got undef");
@@ -16,22 +13,48 @@ $tco = VendorAPI::2Checkout::Client->new('len');
 ok(!defined $tco, "new: username and password are required - got undef");
 
 $tco = VendorAPI::2Checkout::Client->new('len', 'somepwd');
-ok(defined $tco, "new: username and password are required - got object");
+ok(!defined $tco, "new: username and password are required - got object");
 
-isa_ok($tco,'VendorAPI::2Checkout::Client');
-can_ok($tco, 'list_sales');
-can_ok($tco, 'detail_sale');
+$tco = VendorAPI::2Checkout::Client->new('len', 'somepwd', 'ML');
+ok(!defined $tco, "new: bad format - no object");
 
-is($tco->_accept(), 'application/xml', 'no accept param, default to XML');
-
+diag 'No Moose';
 $tco = VendorAPI::2Checkout::Client->new('len', 'somepwd', 'XML');
-is($tco->_accept(), 'application/xml', 'accept param XML good');
-$tco = VendorAPI::2Checkout::Client->new('len', 'somepwd', 'NOMATCH');
-is($tco->_accept(), 'application/xml', 'bad accept param, default to XML');
-$tco = VendorAPI::2Checkout::Client->new('len', 'somepwd', 'JSON');
-is($tco->_accept(), 'application/json', 'accept param JSON good');
-$tco = VendorAPI::2Checkout::Client->new('len', 'somepwd', undef);
-is($tco->_accept(), 'application/xml', 'undef accept param, default to XML');
+ok(defined $tco, "new: username, password, and format are required - got object");
+isa_ok($tco,'VendorAPI::2Checkout::Client');
+isa_ok($tco,'VendorAPI::2Checkout::Client::NoMoose');
+object_tests($tco);
 
+$tco = VendorAPI::2Checkout::Client->new('len', 'somepwd', 'XML', VAPI_NO_MOOSE);
+ok(defined $tco, "new: got object");
+isa_ok($tco,'VendorAPI::2Checkout::Client');
+isa_ok($tco,'VendorAPI::2Checkout::Client::NoMoose');
+is($tco->_accept(), 'application/xml', 'accept param XML good');
+object_tests($tco);
+$tco = VendorAPI::2Checkout::Client->new('len', 'somepwd', 'JSON', VAPI_NO_MOOSE);
+is($tco->_accept(), 'application/json', 'accept param JSON good');
+object_tests($tco);
+
+diag 'Moose';
+$tco = VendorAPI::2Checkout::Client->new('len', 'somepwd', 'XML', 1);
+ok(defined $tco, "new: got object");
+isa_ok($tco,'VendorAPI::2Checkout::Client::Moose');
+is($tco->accept(), 'application/xml', 'accept param XML good');
+object_tests($tco);
+$tco = VendorAPI::2Checkout::Client->new('len', 'somepwd', 'JSON', 1);
+is($tco->accept(), 'application/json', 'accept param JSON good');
+object_tests($tco);
 
 done_testing();
+
+sub object_tests {
+  my $tco = shift;
+  can_ok($tco, 'list_sales');
+  can_ok($tco, 'detail_sale');
+  can_ok($tco, 'list_coupons');
+  can_ok($tco, 'detail_coupon');
+  can_ok($tco, 'list_payments');
+  can_ok($tco, 'list_products');
+  can_ok($tco, 'list_options');
+}
+

@@ -1,5 +1,14 @@
 Revision history for VendorAPI-2Checkout-Client
 
+0.1400  2012-01-09
+        - refactored non moose client into it's own file.
+        - added Moose client.
+        - turned original client lib into a factory.
+          - Boy howdy, does this need cleaned up - but all the tests pass.
+
+0.1200  2012-01-09
+        - ?
+
 0.1200  2012-01-09
         - made sorts and comparisons case-insensitive
 
