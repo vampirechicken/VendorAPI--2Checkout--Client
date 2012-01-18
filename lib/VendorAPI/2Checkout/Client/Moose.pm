@@ -3,6 +3,9 @@ package VendorAPI::2Checkout::Client::Moose;
 use namespace::autoclean;
 use LWP::UserAgent;
 use Moose;
+use MooseX::NonMoose;
+extends 'VendorAPI::2Checkout::Client';
+
 use Moose::Util::TypeConstraints;
 use Params::Validate qw(:all);
 
@@ -53,9 +56,6 @@ sub _buld_ua {
 sub BUILDARGS {
    return { username => $_[1], password => $_[2], format => $_accepted_mime_types{$_[3]}, };
 }
-
-
-
 
 
 =item $response = $c->list_sales();

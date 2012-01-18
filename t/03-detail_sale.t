@@ -18,6 +18,7 @@ SKIP: {
       diag $moosage ? 'Moose' : 'No Moose';
 
       # xml
+      diag 'XML';
       my $tco = VendorAPI::2Checkout::Client->new( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, 'XML', $moosage );
       my $details;
       my $sale_id;
@@ -52,6 +53,7 @@ SKIP: {
       is($errorxml->{errors}[0]{code}[0], 'RECORD_NOT_FOUND', "Sale $sale_id not found");
 
       # json
+      diag 'JSON'
       $tco = VendorAPI::2Checkout::Client->new( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, 'JSON', $moosage );
       my $J = JSON::Any->new();
       SKIP:  {

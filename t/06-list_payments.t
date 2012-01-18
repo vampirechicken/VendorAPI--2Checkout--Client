@@ -29,6 +29,7 @@ SKIP: {
   foreach my $moosage  (0..1) {
     diag $moosage ? 'Moose' : 'No Moose';
     foreach my $format ( 'XML', 'JSON'  ) {
+       diag $format;
        skip "VAPI_2CO_UID && VAPI_2CO_PWD not set in environment" , 3 unless $ENV{VAPI_2CO_UID} && $ENV{VAPI_2CO_PWD};
 
        my $tco = VendorAPI::2Checkout::Client->new( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, $format );
