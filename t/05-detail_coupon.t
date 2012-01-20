@@ -17,10 +17,12 @@ SKIP: {
     skip "VAPI_2CO_UID && VAPI_2CO_PWD not set in environment" , 4
         unless $ENV{VAPI_2CO_UID} && $ENV{VAPI_2CO_PWD};
 
-    foreach my $format ( undef, 'XML', ) {
+    foreach my $moosage (1, 0) {
+       diag $moosage ? 'Moose' : 'No Moose';
 
        # XML
-       my $tco = VendorAPI::2Checkout::Client->new( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, $format );
+       diag 'XML';
+       my $tco = VendorAPI::2Checkout::Client->get_client( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, 'XML', $moosage);
        SKIP:  {
           skip "VAPI_HAS_COUPONS not set in environment. No coupons to retrieve", 2
               unless (defined $ENV{VAPI_HAS_COUPONS} && $ENV{VAPI_HAS_COUPONS} > 0) ;
@@ -44,34 +46,35 @@ SKIP: {
        ok($r->is_error, "got an error");
        my $errorxml = XMLin($r->content(), ForceArray => 1, KeyAttr => {});
        is($errorxml->{errors}[0]{code}[0], (HAS_FORBIDDEN_BUG() ? 'FORBIDDEN' : 'RECORD_NOT_FOUND'), "Coupon $coupon_code not found");
-    }
 
-    # JSON
-    my $tco = VendorAPI::2Checkout::Client->new( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, 'JSON' );
-    my $J = JSON::Any->new();
-    SKIP:  {
-       skip "VAPI_HAS_COUPONS not set in environment. No coupons to retrieve", 2
-           unless (defined $ENV{VAPI_HAS_COUPONS} && $ENV{VAPI_HAS_COUPONS} > 0) ;
+       # JSON
+       diag 'JSON';
+       $tco = VendorAPI::2Checkout::Client->get_client( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, 'JSON', $moosage );
+       my $J = JSON::Any->new();
+       SKIP:  {
+          skip "VAPI_HAS_COUPONS not set in environment. No coupons to retrieve", 2
+              unless (defined $ENV{VAPI_HAS_COUPONS} && $ENV{VAPI_HAS_COUPONS} > 0) ;
 
-       my $r = $tco->list_coupons();
-       my $couponlistJ = $J->decode($r->content(), ForceArray => 1, KeyAttr => {});
+          my $r = $tco->list_coupons();
+          my $couponlistJ = $J->decode($r->content(), ForceArray => 1, KeyAttr => {});
 
-       foreach my $coupon ( @{ $couponlistJ->{coupon} } ) {
-           my $r = $tco->detail_coupon(coupon_code => $coupon->{coupon_code});
-           ok($r->is_success(), 'got detail');
-           my $couponJ = $J->decode($r->content(), ForceArray => 1, KeyAttr => {});
+          foreach my $coupon ( @{ $couponlistJ->{coupon} } ) {
+              my $r = $tco->detail_coupon(coupon_code => $coupon->{coupon_code});
+              ok($r->is_success(), 'got detail');
+              my $couponJ = $J->decode($r->content(), ForceArray => 1, KeyAttr => {});
 
-           my $coupon2 = $couponJ->{coupon};
-           delete $coupon2->{product};               # API list_coupons/detail_coupon bug
-           is_deeply( $coupon2, $coupon, "coupon from detail_coupon() matches coupon from list_coupons()" );
+              my $coupon2 = $couponJ->{coupon};
+              delete $coupon2->{product};               # API list_coupons/detail_coupon bug
+              is_deeply( $coupon2, $coupon, "coupon from detail_coupon() matches coupon from list_coupons()" );
+          }
        }
-    }
 
-    my $coupon_code = 42;  # should fail;
-    my $r = $tco->detail_coupon(coupon_code => $coupon_code);
-    ok($r->is_error, "got an error");
-    my $errorJ = $J->decode($r->content(), ForceArray => 1, KeyAttr => {});
-    is($errorJ->{errors}[0]{code}, (HAS_FORBIDDEN_BUG() ? 'FORBIDDEN' : 'RECORD_NOT_FOUND'), "Coupon $coupon_code not found");
+       $coupon_code = 42;  # should fail;
+       $r = $tco->detail_coupon(coupon_code => $coupon_code);
+       ok($r->is_error, "got an error");
+       my $errorJ = $J->decode($r->content(), ForceArray => 1, KeyAttr => {});
+       is($errorJ->{errors}[0]{code}, (HAS_FORBIDDEN_BUG() ? 'FORBIDDEN' : 'RECORD_NOT_FOUND'), "Coupon $coupon_code not found");
+    }
 }
 
 done_testing();

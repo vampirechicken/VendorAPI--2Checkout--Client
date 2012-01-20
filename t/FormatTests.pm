@@ -28,7 +28,7 @@ sub has_none {
    is($r->code(), 400, 'http 400');
    my $list = $self->to_hash($r->content());
    my $error_code = $self->error_code($list);
-   ok($error_code eq 'RECORD_NOT_FOUND', "none found, as expected") 
+   ok($error_code eq 'RECORD_NOT_FOUND', "none found, as expected");
 }
 
 

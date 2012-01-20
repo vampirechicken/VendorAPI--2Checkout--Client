@@ -1,5 +1,7 @@
 Changes
 lib/VendorAPI/2Checkout/Client.pm
+lib/VendorAPI/2Checkout/Client/NoMoose.pm
+lib/VendorAPI/2Checkout/Client/Moose.pm
 Makefile.PL
 MANIFEST			This list of files
 README

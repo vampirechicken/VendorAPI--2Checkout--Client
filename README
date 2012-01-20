@@ -63,8 +63,11 @@ You can also look for information at:
 GITHUB
    Source code for this module is available on Github at https://github.com/vampirechicken/VendorAPI--2Checkout--Client
 
-LICENSE AND COPYRIGHT
+2CHECKOUT
+   2Checkout's web site is at http://www.2checkout.com/   
+   Their API documentation lives at http://www.2checkout.com/documentation/api/
 
+LICENSE AND COPYRIGHT
 Copyright (C) 2011 Len Jaffe
 
 This program is free software; you can redistribute it and/or modify it
