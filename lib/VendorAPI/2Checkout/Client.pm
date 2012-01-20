@@ -9,12 +9,7 @@ use Params::Validate qw(:all);
 use Carp qw(confess);
 use URI;
 use URI::QueryParam;
-
-use VendorAPI::2Checkout::Client::NoMoose;
-use VendorAPI::2Checkout::Client::Moose;
-
-require Exporter;
-
+require UNIVERSAL::require;
 
 =head1 NAME
 
@@ -22,30 +17,23 @@ VendorAPI::2Checkout::Client - an OO interface to the 2Checkout.com Vendor API
 
 =head1 VERSION
 
-Version 0.1300
+Version 0.1500
 
 =cut
 
-use vars qw( $VERSION @ISA @EXPORT_OK %EXPORT_TAGS ); 
-$VERSION = '0.1400';
-
+use vars qw( $VERSION @ISA );
+$VERSION = '0.1500';
 
 sub _base_uri { 'https://www.2checkout.com/api' };
 sub _realm    { '2CO API' };
 sub _netloc   { 'www.2checkout.com:443' };
 
-use constant {
-     VAPI_MOOSE    => 1,
-     VAPI_NO_MOOSE => 0,
-};
-
-@ISA = qw( Exporter );
-%EXPORT_TAGS = ( 'constants' => [ qw( 
-                                       VAPI_MOOSE VAPI_NO_MOOSE
-                                     )
-                                 ]
-               );
-@EXPORT_OK = @{ $EXPORT_TAGS{'constants'} } ;
+sub mime_type {
+  my $self = shift;
+  my $format = shift;
+  my %mime_types = ( XML => 'application/xml', JSON => 'application/json', );
+  return $mime_types{$format} || $mime_types{JSON};
+}
 
 =head1 SYNOPSIS
 
@@ -75,7 +63,7 @@ This module is an OO interface to the 2Checkout.com Vendor API.
 This modules uses Params::Validate which likes to die() when the parameters do not pass validation, so
 wrap your code in evals, etc.
 
-Presently implements list_sales(), detail_sale(), list_coupons(), and detail_coupon(), list_payments(), 
+Presently implements list_sales(), detail_sale(), list_coupons(), and detail_coupon(), list_payments(),
 list_options(), list_products().
 
 Return data is in XML or JSON.
@@ -96,31 +84,38 @@ You must pass your Vendor API username and password or the constructor will retu
 
 =cut
 
-my %accept_mime_types = ( XML => 'application/xml', JSON => 'application/json', );
+sub VAPI_MOOSE { 1; }
+sub VAPI_NO_MOOSE { 0; }
 
-sub new {
+sub get_client {
    my $class     = shift;
    my $username  = shift;
    my $password  = shift;
-   my $accept    = shift;
+   my $format    = shift;
    my $use_moose = shift;
 
    unless ( $username && $password) {
       return undef;
    }
 
-   unless ( defined $accept && $accept =~ qr/^(?:XML|JSON)$/) {
+   unless ( defined $format && $format =~ qr/^(?:XML|JSON)$/) {
       return undef;
    }
 
-   if (defined $use_moose && $use_moose) {
-      return VendorAPI::2Checkout::Client::Moose->new($username, $password, $accept, VAPI_MOOSE);
+   $class = 'VendorAPI::2Checkout::Client::';
+   if (defined $use_moose && $use_moose == VAPI_MOOSE) {
+      $class .= 'Moose';
+   }
+   else {
+      $class .= 'NoMoose';
    }
 
-   return VendorAPI::2Checkout::Client::NoMoose->new($username, $password, $accept);
+   my $return = $class->require;
+   unless ($return) {
+      die "require issue: $@";
+   }
+   return $class->new($username, $password, $format);
 }
-
-
 
 
 =head1 AUTHOR

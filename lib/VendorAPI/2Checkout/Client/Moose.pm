@@ -2,6 +2,7 @@ package VendorAPI::2Checkout::Client::Moose;
 
 use namespace::autoclean;
 use LWP::UserAgent;
+
 use Moose;
 use MooseX::NonMoose;
 extends 'VendorAPI::2Checkout::Client';
@@ -9,12 +10,11 @@ extends 'VendorAPI::2Checkout::Client';
 use Moose::Util::TypeConstraints;
 use Params::Validate qw(:all);
 
-our $VERSION = '0.1400';
+our $VERSION = '0.1500';
 
 sub _base_uri { 'https://www.2checkout.com/api' };
-sub _realm    { '2CO API' };
-sub _netloc   { 'www.2checkout.com:443' };
-
+sub _realm    { '2CO API'                       };
+sub _netloc   { 'www.2checkout.com:443'         };
 
 enum 'Format' => qw( XML JSON );
 
@@ -28,8 +28,6 @@ has ua => (
    init_arg => undef,
 );
 
-our %_accepted_mime_types = ( XML => 'application/xml', JSON => 'application/json', );
-
 has  accept => (
    isa => 'Str',
    is  => 'ro',
@@ -38,7 +36,7 @@ has  accept => (
    init_arg => 'format',
 );
 
-sub _build_accept { $_accepted_mime_types{XML}; }
+sub _build_accept { mime_type($_[1]); }
 
 has [ qw(username password) ] => (
    isa => 'Str',
@@ -54,7 +52,8 @@ sub _buld_ua {
 }
 
 sub BUILDARGS {
-   return { username => $_[1], password => $_[2], format => $_accepted_mime_types{$_[3]}, };
+   my $class = shift;
+   return { username => $_[0], password => $_[1], format => $class->mime_type($_[2]), };
 }
 
 

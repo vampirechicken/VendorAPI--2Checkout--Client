@@ -22,7 +22,7 @@ SKIP: {
 
        # XML
        diag 'XML';
-       my $tco = VendorAPI::2Checkout::Client->new( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, 'XML', $moosage);
+       my $tco = VendorAPI::2Checkout::Client->get_client( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, 'XML', $moosage);
        SKIP:  {
           skip "VAPI_HAS_COUPONS not set in environment. No coupons to retrieve", 2
               unless (defined $ENV{VAPI_HAS_COUPONS} && $ENV{VAPI_HAS_COUPONS} > 0) ;
@@ -49,7 +49,7 @@ SKIP: {
 
        # JSON
        diag 'JSON';
-       $tco = VendorAPI::2Checkout::Client->new( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, 'JSON', $moosage );
+       $tco = VendorAPI::2Checkout::Client->get_client( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, 'JSON', $moosage );
        my $J = JSON::Any->new();
        SKIP:  {
           skip "VAPI_HAS_COUPONS not set in environment. No coupons to retrieve", 2

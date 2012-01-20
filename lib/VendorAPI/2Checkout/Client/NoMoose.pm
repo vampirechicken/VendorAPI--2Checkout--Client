@@ -16,15 +16,14 @@ VendorAPI::2Checkout::Client::NoMoose - an non-Moose OO interface to the 2Checko
 
 =head1 VERSION
 
-Version 0.1300
+Version 0.1500
 
 =cut
 
-use vars qw( $VERSION @ISA $super ); 
+use vars qw( $VERSION @ISA );
 
-$super = 'VendorAPI::2Checkout::Client';
-@ISA = ( $super );
-$VERSION = '0.1400';
+@ISA = ( 'VendorAPI::2Checkout::Client' );
+$VERSION = '0.1500';
 
 =head1 SYNOPSIS
 
@@ -54,7 +53,7 @@ This module is an OO interface to the 2Checkout.com Vendor API.
 This modules uses Params::Validate which likes to die() when the parameters do not pass validation, so
 wrap your code in evals, etc.
 
-Presently implements list_sales(), detail_sale(), list_coupons(), and detail_coupon(), list_payments(), 
+Presently implements list_sales(), detail_sale(), list_coupons(), and detail_coupon(), list_payments(),
 list_options(), list_products().
 
 Return data is in XML or JSON.
@@ -73,10 +72,8 @@ You must pass your Vendor API username and password or the constructor will retu
 
 =cut
 
-my %accept_mime_types = ( XML => 'application/xml', JSON => 'application/json', );
-
 sub new {
-   my $class = shift;
+   my $class    = shift;
    my $username = shift;
    my $password = shift;
    my $accept   = shift;
@@ -90,11 +87,11 @@ sub new {
    }
 
    my $self = bless {}, $class;
-   my $ua = LWP::UserAgent->new( agent => "VendorAPI::2Checkout::Client/${VERSION} " );
+   my $ua = LWP::UserAgent->new( agent => "VendorAPI::2Checkout::Client/${VERSION}" );
    $ua->credentials($self->SUPER::_netloc(), $self->SUPER::_realm(), $username, $password);
 
-   $self->{ua}     = $ua; 
-   $self->{accept} =  $accept_mime_types{$accept};
+   $self->{ua}     = $ua;
+   $self->{accept} =  $self->mime_type($accept);
    return $self;
 }
 
@@ -190,7 +187,7 @@ Retrieves the details for the named coupon.
 
 sub detail_coupon {
    my $self = shift;
-   my $_detail_profile = { coupon_code => { type => SCALAR, regex => qr/^\w+$/, untaint => 1, optional => 0, }, }; 
+   my $_detail_profile = { coupon_code => { type => SCALAR, regex => qr/^\w+$/, untaint => 1, optional => 0, }, };
    my %p = validate(@_, $_detail_profile);
 
    unless ( $p{coupon_code} ) {

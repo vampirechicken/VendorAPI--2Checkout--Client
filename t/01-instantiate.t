@@ -6,42 +6,42 @@ use warnings;
 use Test::More ;
 use VendorAPI::2Checkout::Client qw( :constants );
 
-my $tco = VendorAPI::2Checkout::Client->new();
-ok(!defined $tco, "new: username and password are required - got undef");
+my $tco = VendorAPI::2Checkout::Client->get_client();
+ok(!defined $tco, "get_client: username and password are required - got undef");
 
-$tco = VendorAPI::2Checkout::Client->new('len');
-ok(!defined $tco, "new: username and password are required - got undef");
+$tco = VendorAPI::2Checkout::Client->get_client('len');
+ok(!defined $tco, "get_client: username and password are required - got undef");
 
-$tco = VendorAPI::2Checkout::Client->new('len', 'somepwd');
-ok(!defined $tco, "new: username and password are required - got object");
+$tco = VendorAPI::2Checkout::Client->get_client('len', 'somepwd');
+ok(!defined $tco, "get_client: username and password are required - got object");
 
-$tco = VendorAPI::2Checkout::Client->new('len', 'somepwd', 'ML');
-ok(!defined $tco, "new: bad format - no object");
+$tco = VendorAPI::2Checkout::Client->get_client('len', 'somepwd', 'ML');
+ok(!defined $tco, "get_client: bad format - no object");
 
 diag 'No Moose';
-$tco = VendorAPI::2Checkout::Client->new('len', 'somepwd', 'XML');
-ok(defined $tco, "new: username, password, and format are required - got object");
+$tco = VendorAPI::2Checkout::Client->get_client('len', 'somepwd', 'XML');
+ok(defined $tco, "get_client: username, password, and format are required - got object");
 isa_ok($tco,'VendorAPI::2Checkout::Client');
 isa_ok($tco,'VendorAPI::2Checkout::Client::NoMoose');
 object_tests($tco);
 
-$tco = VendorAPI::2Checkout::Client->new('len', 'somepwd', 'XML', VAPI_NO_MOOSE);
-ok(defined $tco, "new: got object");
+$tco = VendorAPI::2Checkout::Client->get_client('len', 'somepwd', 'XML', VendorAPI::2Checkout::Client->VAPI_NO_MOOSE);
+ok(defined $tco, "get_client: got object");
 isa_ok($tco,'VendorAPI::2Checkout::Client');
 isa_ok($tco,'VendorAPI::2Checkout::Client::NoMoose');
 is($tco->_accept(), 'application/xml', 'accept param XML good');
 object_tests($tco);
-$tco = VendorAPI::2Checkout::Client->new('len', 'somepwd', 'JSON', VAPI_NO_MOOSE);
+$tco = VendorAPI::2Checkout::Client->get_client('len', 'somepwd', 'JSON', VendorAPI::2Checkout::Client->VAPI_NO_MOOSE);
 is($tco->_accept(), 'application/json', 'accept param JSON good');
 object_tests($tco);
 
 diag 'Moose';
-$tco = VendorAPI::2Checkout::Client->new('len', 'somepwd', 'XML', 1);
-ok(defined $tco, "new: got object");
+$tco = VendorAPI::2Checkout::Client->get_client('len', 'somepwd', 'XML', VendorAPI::2Checkout::Client->VAPI_MOOSE);
+ok(defined $tco, "get_client: got object");
 isa_ok($tco,'VendorAPI::2Checkout::Client::Moose');
 is($tco->accept(), 'application/xml', 'accept param XML good');
 object_tests($tco);
-$tco = VendorAPI::2Checkout::Client->new('len', 'somepwd', 'JSON', 1);
+$tco = VendorAPI::2Checkout::Client->get_client('len', 'somepwd', 'JSON', VendorAPI::2Checkout::Client->VAPI_MOOSE);
 is($tco->accept(), 'application/json', 'accept param JSON good');
 object_tests($tco);
 

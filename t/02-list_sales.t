@@ -137,10 +137,10 @@ SKIP: {
         diag $format;
         sleep 1;
         skip "VAPI_2CO_UID && VAPI_2CO_PWD not set in environment" , 5 unless $ENV{VAPI_2CO_UID} && $ENV{VAPI_2CO_PWD};
-        my $tco = VendorAPI::2Checkout::Client->new( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, $format, $moosage );
+        my $tco = VendorAPI::2Checkout::Client->get_client( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, $format, $moosage );
         my $format_tests = FormatTests::Factory->get_format_tests($format);
 
-        ok(defined $tco, "new: got object");
+        ok(defined $tco, "get_client: got object");
         #isa_ok($tco,'VendorAPI::2Checkout::Client');
 
         my $num_all_sales = test_list_sales($tco, $format_tests);

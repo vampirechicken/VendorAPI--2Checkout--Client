@@ -29,9 +29,9 @@ SKIP: {
     foreach my $format ( 'XML', 'JSON'  ) {
        diag $format;
        skip "VAPI_2CO_UID && VAPI_2CO_PWD not set in environment" , 3 unless $ENV{VAPI_2CO_UID} && $ENV{VAPI_2CO_PWD};
-       my $tco = VendorAPI::2Checkout::Client->new( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, $format, $moosage );
+       my $tco = VendorAPI::2Checkout::Client->get_client( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, $format, $moosage );
        my $format_tests = FormatTests::Factory->get_format_tests($format);
-       ok(defined $tco, "new: got object");
+       ok(defined $tco, "get_client: got object");
        test_list_products($tco, $format_tests);
     }
   }
