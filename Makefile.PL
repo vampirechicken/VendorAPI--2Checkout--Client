@@ -13,10 +13,15 @@ WriteMakefile(
       : ()),
     PL_FILES            => {},
     PREREQ_PM => {
-        'LWP'              => 0,
+        'LWP::UserAgent'   => 0,
         'Params::Validate' => 0,
         'URI'              => 0,
         'URI::QueryParam'  => 0,
+        'Moose'            => 0,
+        'MooseX::NonMoose' => 0,
+        'Moose::Util::TypeConstraints'  => 0,
+        'namespace::autoclean'          => 0,
+        'UNIVERSAL::require'            => 0,
     },
     BUILD_REQUIRES => {
         'Test::More'      => 0.87,
