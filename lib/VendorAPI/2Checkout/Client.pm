@@ -17,12 +17,12 @@ VendorAPI::2Checkout::Client - an OO interface to the 2Checkout.com Vendor API
 
 =head1 VERSION
 
-Version 0.1500
+Version 0.1501
 
 =cut
 
 use vars qw( $VERSION @ISA );
-$VERSION = '0.1500';
+$VERSION = '0.1501';
 
 sub _base_uri { 'https://www.2checkout.com/api' };
 sub _realm    { '2CO API' };
