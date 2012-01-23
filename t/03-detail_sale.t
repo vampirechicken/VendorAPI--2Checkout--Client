@@ -13,7 +13,6 @@ sub test_XML {
   my $moosage = shift;
 
   # xml
-  diag 'XML';
   my $tco = VendorAPI::2Checkout::Client->get_client( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, 'XML', $moosage );
   my $details = eval { $tco->detail_sale(); };
   like($@, qr/detail_sale requires sale_id or invoice_id/, 'caught empty param list error');
@@ -55,7 +54,6 @@ sub test_XML {
 sub test_JSON {
   my $moosage = shift;
   # json
-  diag 'JSON';
   my $tco = VendorAPI::2Checkout::Client->get_client( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, 'JSON', $moosage );
   my $details = eval { $tco->detail_sale(); };
   like($@, qr/detail_sale requires sale_id or invoice_id/, 'caught empty param list error');
@@ -98,7 +96,6 @@ SKIP: {
         unless $ENV{VAPI_2CO_UID} && $ENV{VAPI_2CO_PWD};
 
     foreach my $moosage (1, 0) {
-      diag $moosage ? 'Moose' : 'No Moose';
       test_XML($moosage);
       test_JSON($moosage);
     }

@@ -18,10 +18,8 @@ SKIP: {
         unless $ENV{VAPI_2CO_UID} && $ENV{VAPI_2CO_PWD};
 
     foreach my $moosage (1, 0) {
-       diag $moosage ? 'Moose' : 'No Moose';
 
        # XML
-       diag 'XML';
        my $tco = VendorAPI::2Checkout::Client->get_client( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, 'XML', $moosage);
        SKIP:  {
           skip "VAPI_HAS_COUPONS not set in environment. No coupons to retrieve", 2
@@ -48,7 +46,6 @@ SKIP: {
        is($errorxml->{errors}[0]{code}[0], (HAS_FORBIDDEN_BUG() ? 'FORBIDDEN' : 'RECORD_NOT_FOUND'), "Coupon $coupon_code not found");
 
        # JSON
-       diag 'JSON';
        $tco = VendorAPI::2Checkout::Client->get_client( $ENV{VAPI_2CO_UID}, $ENV{VAPI_2CO_PWD}, 'JSON', $moosage );
        my $J = JSON::Any->new();
        SKIP:  {

@@ -18,7 +18,6 @@ ok(!defined $tco, "get_client: username and password are required - got object")
 $tco = VendorAPI::2Checkout::Client->get_client('len', 'somepwd', 'ML');
 ok(!defined $tco, "get_client: bad format - no object");
 
-diag 'No Moose';
 $tco = VendorAPI::2Checkout::Client->get_client('len', 'somepwd', 'XML');
 ok(defined $tco, "get_client: username, password, and format are required - got object");
 isa_ok($tco,'VendorAPI::2Checkout::Client');
@@ -35,7 +34,6 @@ $tco = VendorAPI::2Checkout::Client->get_client('len', 'somepwd', 'JSON', Vendor
 is($tco->_accept(), 'application/json', 'accept param JSON good');
 object_tests($tco);
 
-diag 'Moose';
 $tco = VendorAPI::2Checkout::Client->get_client('len', 'somepwd', 'XML', VendorAPI::2Checkout::Client->VAPI_MOOSE);
 ok(defined $tco, "get_client: got object");
 isa_ok($tco,'VendorAPI::2Checkout::Client::Moose');
