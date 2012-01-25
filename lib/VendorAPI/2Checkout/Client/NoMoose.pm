@@ -16,14 +16,14 @@ VendorAPI::2Checkout::Client::NoMoose - an non-Moose OO interface to the 2Checko
 
 =head1 VERSION
 
-Version 0.1501
+Version 0.1502
 
 =cut
 
 use vars qw( $VERSION @ISA );
 
 @ISA = ( 'VendorAPI::2Checkout::Client' );
-$VERSION = '0.1501';
+$VERSION = '0.1502';
 
 =head1 SYNOPSIS
 

@@ -10,7 +10,7 @@ extends 'VendorAPI::2Checkout::Client';
 use Moose::Util::TypeConstraints;
 use Params::Validate qw(:all);
 
-our $VERSION = '0.1501';
+our $VERSION = '0.1502';
 
 sub _base_uri { 'https://www.2checkout.com/api' };
 sub _realm    { '2CO API'                       };

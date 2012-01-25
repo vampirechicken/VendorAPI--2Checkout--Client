@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Test::More ;
-use VendorAPI::2Checkout::Client qw( :constants );
+use VendorAPI::2Checkout::Client;
 
 my $tco = VendorAPI::2Checkout::Client->get_client();
 ok(!defined $tco, "get_client: username and password are required - got undef");
